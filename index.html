@@ -762,6 +762,7 @@ async function startAsModerator() {
     session_code: state.sessionCode,
     language: state.language,
     status: 'card_selection',
+    sector_name: 'Energy',
   }).select().single();
 
   if (error) {
