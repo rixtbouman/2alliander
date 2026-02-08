@@ -739,7 +739,7 @@ function showScreen(name) {
       'closing': 'closing',
     };
     if (statusMap[name]) {
-      sb.from('sessions').update({ status: statusMap[name] }).eq('id', state.sessionId).then();
+      sb.from('sessions').update({ status: statusMap[name] }).eq('session_id', state.sessionId).then();
     }
   }
 }
@@ -759,7 +759,7 @@ async function startAsModerator() {
 
   // Create session in Supabase
   const { data, error } = await sb.from('sessions').insert({
-    code: state.sessionCode,
+    session_code: state.sessionCode,
     language: state.language,
     status: 'card_selection',
   }).select().single();
@@ -769,7 +769,7 @@ async function startAsModerator() {
     return;
   }
 
-  state.sessionId = data.id;
+  state.sessionId = data.session_id;
   document.getElementById('display-code').textContent = state.sessionCode;
   document.getElementById('session-moderator').style.display = 'block';
   document.getElementById('session-viewer').style.display = 'none';
@@ -793,7 +793,7 @@ async function joinSession() {
     return;
   }
 
-  const { data, error } = await sb.from('sessions').select('*').eq('code', code).single();
+  const { data, error } = await sb.from('sessions').select('*').eq('session_code', code).single();
 
   if (error || !data) {
     errEl.textContent = 'Session not found. Check the code and try again.';
@@ -802,9 +802,9 @@ async function joinSession() {
   }
 
   errEl.style.display = 'none';
-  state.sessionId = data.id;
-  state.sessionCode = data.code;
-  state.language = data.language || 'en';
+  state.sessionId = data.session_id;
+  state.sessionCode = data.session_code;
+  state.language = (data.language || 'en').toLowerCase();
   applyTranslations();
 
   // Load existing session data
@@ -819,18 +819,18 @@ async function joinSession() {
 
 function loadSessionData(data) {
   state.archetype = data.archetype;
-  state.resource_outlook = data.resource_outlook;
-  state.system_stability = data.system_stability;
-  state.dominant_value = data.dominant_value;
-  state.technology_1 = data.technology_1;
-  state.technology_2 = data.technology_2;
-  state.seed_output = data.seed_output || '';
-  state.distant_future = data.distant_future || '';
-  state.not_so_distant_future = data.not_so_distant_future || '';
-  state.near_future = data.near_future || '';
-  state.consequences = data.consequences || '';
-  state.intervention_text = data.intervention_text || '';
-  state.insights = data.insights || '';
+  state.resource_outlook = data.dimension_a_value;
+  state.system_stability = data.dimension_b_value;
+  state.dominant_value = data.nuance;
+  state.technology_1 = data.tech_a_name;
+  state.technology_2 = data.tech_b_name;
+  state.seed_output = data.b1_output || '';
+  state.distant_future = data.b2_output || '';
+  state.not_so_distant_future = data.b5_output || '';
+  state.near_future = data.b6_output || '';
+  state.consequences = data.b8_output || '';
+  state.intervention_text = data.user_intervention || '';
+  state.insights = data.user_insights || '';
 
   // Populate text on screens
   if (state.distant_future) {
@@ -885,7 +885,7 @@ function subscribeToSession() {
       event: 'UPDATE',
       schema: 'public',
       table: 'sessions',
-      filter: 'id=eq.' + state.sessionId,
+      filter: 'session_id=eq.' + state.sessionId,
     }, (payload) => {
       const data = payload.new;
       loadSessionData(data);
@@ -1026,7 +1026,7 @@ async function streamFromAPI(promptId, targetElementId, sessionField) {
     if (updateTimer) clearTimeout(updateTimer);
     updateTimer = setTimeout(async () => {
       if (accumulated && sessionField) {
-        await sb.from('sessions').update({ [sessionField]: accumulated }).eq('id', state.sessionId);
+        await sb.from('sessions').update({ [sessionField]: accumulated }).eq('session_id', state.sessionId);
       }
     }, 2000);
   }
@@ -1070,7 +1070,7 @@ async function streamFromAPI(promptId, targetElementId, sessionField) {
   // Final save to Supabase
   if (updateTimer) clearTimeout(updateTimer);
   if (sessionField) {
-    await sb.from('sessions').update({ [sessionField]: accumulated }).eq('id', state.sessionId);
+    await sb.from('sessions').update({ [sessionField]: accumulated }).eq('session_id', state.sessionId);
   }
 
   return accumulated;
@@ -1136,14 +1136,14 @@ async function generateScenario() {
 
   // Update session with card selections
   await sb.from('sessions').update({
-    resource_outlook: state.resource_outlook,
-    system_stability: state.system_stability,
-    dominant_value: state.dominant_value,
-    technology_1: state.technology_1,
-    technology_2: state.technology_2,
+    dimension_a_value: state.resource_outlook,
+    dimension_b_value: state.system_stability,
+    nuance: state.dominant_value,
+    tech_a_name: state.technology_1,
+    tech_b_name: state.technology_2,
     archetype: state.archetype,
     status: 'generating',
-  }).eq('id', state.sessionId);
+  }).eq('session_id', state.sessionId);
 
   // Show loading
   document.getElementById('btn-generate').style.display = 'none';
@@ -1153,14 +1153,14 @@ async function generateScenario() {
     // b1: Seed (silent)
     document.getElementById('loading-text').textContent = t('loading-text');
     state.seed_output = await silentAPICall('b1');
-    await sb.from('sessions').update({ seed_output: state.seed_output }).eq('id', state.sessionId);
+    await sb.from('sessions').update({ b1_output: state.seed_output }).eq('session_id', state.sessionId);
 
     // Switch to distant future screen
-    await sb.from('sessions').update({ status: 'distant_future' }).eq('id', state.sessionId);
+    await sb.from('sessions').update({ status: 'distant_future' }).eq('session_id', state.sessionId);
     showScreen('distant');
 
     // b2: Distant future (streamed)
-    state.distant_future = await streamFromAPI('b2', 'text-distant', 'distant_future');
+    state.distant_future = await streamFromAPI('b2', 'text-distant', 'b2_output');
 
     // b3: Assessment (silent)
     const assessment = await silentAPICall('b3');
@@ -1168,7 +1168,7 @@ async function generateScenario() {
     // If needs revision, run b3_revision
     if (assessment.toUpperCase().includes('NEEDS REVISION')) {
       state.distant_future = await silentAPICall('b3_revision');
-      await sb.from('sessions').update({ distant_future: state.distant_future }).eq('id', state.sessionId);
+      await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
       document.getElementById('text-distant').textContent = state.distant_future;
     }
 
@@ -1183,21 +1183,21 @@ async function generateScenario() {
 
 async function continueToNotSoDistant() {
   document.getElementById('btn-to-nsd').style.display = 'none';
-  await sb.from('sessions').update({ status: 'not_so_distant_future' }).eq('id', state.sessionId);
+  await sb.from('sessions').update({ status: 'not_so_distant_future' }).eq('session_id', state.sessionId);
   showScreen('nsd');
 
   // b5: Not so distant future (streamed)
-  state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'not_so_distant_future');
+  state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
   document.getElementById('btn-to-near').style.display = 'block';
 }
 
 async function continueToNear() {
   document.getElementById('btn-to-near').style.display = 'none';
-  await sb.from('sessions').update({ status: 'near_future' }).eq('id', state.sessionId);
+  await sb.from('sessions').update({ status: 'near_future' }).eq('session_id', state.sessionId);
   showScreen('near');
 
   // b6: Near future (streamed)
-  state.near_future = await streamFromAPI('b6', 'text-near', 'near_future');
+  state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
 
   // b7: Coherence assessment (silent)
   try {
@@ -1215,14 +1215,14 @@ async function submitIntervention() {
 
   state.intervention_text = text;
   await sb.from('sessions').update({
-    intervention_text: text,
+    user_intervention: text,
     status: 'consequences',
-  }).eq('id', state.sessionId);
+  }).eq('session_id', state.sessionId);
 
   showScreen('consequences');
 
   // b8: Consequences (streamed)
-  state.consequences = await streamFromAPI('b8', 'text-consequences', 'consequences');
+  state.consequences = await streamFromAPI('b8', 'text-consequences', 'b8_output');
   document.getElementById('btn-to-insights').style.display = 'block';
 }
 
@@ -1231,9 +1231,9 @@ async function submitInsights() {
   state.insights = text;
 
   await sb.from('sessions').update({
-    insights: text,
+    user_insights: text,
     status: 'closing',
-  }).eq('id', state.sessionId);
+  }).eq('session_id', state.sessionId);
 
   // Build summary
   buildSummary();
