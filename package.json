@@ -1,0 +1,9 @@
+{
+  "name": "alliander-scenario-planning",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@google/generative-ai": "^0.24.0",
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}
