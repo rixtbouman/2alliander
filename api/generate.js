@@ -121,8 +121,11 @@ export default async function handler(req, res) {
 
     const prompt = await buildPrompt(promptId, sessionData);
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const apiKey = process.env.GEMINI_API_KEY;
+    console.log("API key present:", !!apiKey, "length:", apiKey ? apiKey.length : 0, "starts with:", apiKey ? apiKey.substring(0, 4) : "N/A");
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const result = await model.generateContentStream(prompt);
 
