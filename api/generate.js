@@ -7,7 +7,6 @@ const SUPABASE_ANON_KEY =
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Map prompt variable placeholders to session data fields
 function fillTemplate(template, vars) {
   let filled = template;
   for (const [key, value] of Object.entries(vars)) {
@@ -26,16 +25,6 @@ async function fetchPrompt(promptId) {
   return data.prompt_text;
 }
 
-async function fetchTechDocument(techName) {
-  const { data, error } = await supabase
-    .from("technology_documents")
-    .select("content")
-    .eq("parent_tech", techName)
-    .single();
-  if (error) return "";
-  return data.content;
-}
-
 async function fetchSectorAnalysis(techName) {
   const { data, error } = await supabase
     .from("technology_sector_analyses")
@@ -46,56 +35,72 @@ async function fetchSectorAnalysis(techName) {
   return data.content;
 }
 
-// Build the full prompt with all variables filled in
+async function fetchSectorProfile() {
+  const { data, error } = await supabase
+    .from("sector_profile")
+    .select("*")
+    .single();
+  if (error) return { profile: "", organization_name: "" };
+
+  // Assemble columns into a readable block for the prompt
+  const sections = [
+    data.organization_name && `Organization: ${data.organization_name}`,
+    data.organizational_context && `Organizational Context: ${data.organizational_context}`,
+    data.key_stakeholders && `Key Stakeholders: ${data.key_stakeholders}`,
+    data.current_dilemmas && `Current Dilemmas: ${data.current_dilemmas}`,
+    data.strategic_priorities && `Strategic Priorities: ${data.strategic_priorities}`,
+    data.macro_dimensions && `Macro Dimensions: ${data.macro_dimensions}`,
+    data.elsa_sensitivity && `ELSA Sensitivity: ${data.elsa_sensitivity}`,
+  ].filter(Boolean);
+
+  return {
+    profile: sections.join("\n\n"),
+    organization_name: data.organization_name || "",
+  };
+}
+
 async function buildPrompt(promptId, sessionData) {
   const template = await fetchPrompt(promptId);
 
-  // Fetch tech docs and sector analyses for both technologies
-  const [techDoc1, techDoc2, sectorAnalysis1, sectorAnalysis2] =
+  // Fetch technology × sector analyses and sector profile in parallel
+  const [sectorAnalysisA, sectorAnalysisB, sectorProfileData] =
     await Promise.all([
-      fetchTechDocument(sessionData.technology_1),
-      fetchTechDocument(sessionData.technology_2),
       fetchSectorAnalysis(sessionData.technology_1),
       fetchSectorAnalysis(sessionData.technology_2),
+      fetchSectorProfile(),
     ]);
 
-  const sectorProfile = [sectorAnalysis1, sectorAnalysis2]
-    .filter(Boolean)
-    .join("\n\n---\n\n");
-  const techDocs = [techDoc1, techDoc2].filter(Boolean).join("\n\n---\n\n");
-
   const vars = {
+    // Session dimensions
     archetype: sessionData.archetype || "",
-    resource_outlook: sessionData.resource_outlook || "",
     dimension_a_value: sessionData.resource_outlook || "",
-    system_stability: sessionData.system_stability || "",
     dimension_b_value: sessionData.system_stability || "",
-    dominant_value: sessionData.dominant_value || "",
     nuance: sessionData.dominant_value || "",
-    technology_1: sessionData.technology_1 || "",
-    technology_2: sessionData.technology_2 || "",
+    sector_name: sessionData.sector_name || "Energy",
+    language: sessionData.language || "en",
+
+    // Technology names
     tech_a_name: sessionData.technology_1 || "",
     tech_b_name: sessionData.technology_2 || "",
-    sector_profile: sectorProfile,
-    tech_docs: techDocs,
-    technology_1_doc: techDoc1,
-    technology_2_doc: techDoc2,
-    technology_1_sector: sectorAnalysis1,
-    technology_2_sector: sectorAnalysis2,
-    tech_a_doc: techDoc1,
-    tech_b_doc: techDoc2,
-    tech_a_sector: sectorAnalysis1,
-    tech_b_sector: sectorAnalysis2,
+
+    // Sector profile (assembled from sector_profile table)
+    sector_profile: sectorProfileData.profile,
+    organization_name: sectorProfileData.organization_name,
+
+    // Technology × sector analyses
+    tech_x_sector_a: sectorAnalysisA,
+    tech_x_sector_b: sectorAnalysisB,
+
+    // Pipeline outputs
     b1_output: sessionData.seed_output || "",
-    b2_scenario: sessionData.distant_future || "",
     b2_output: sessionData.distant_future || "",
-    b5_scenario: sessionData.not_so_distant_future || "",
+    b2_final_output: sessionData.distant_future || "",
+    b3_fix_instructions: sessionData.b3_fix_instructions || "",
     b5_output: sessionData.not_so_distant_future || "",
-    b6_scenario: sessionData.near_future || "",
     b6_output: sessionData.near_future || "",
-    intervention_text: sessionData.intervention_text || "",
+
+    // User inputs
     user_intervention: sessionData.intervention_text || "",
-    language: sessionData.language || "en",
   };
 
   let filled = fillTemplate(template, vars);
@@ -122,8 +127,6 @@ export default async function handler(req, res) {
     const prompt = await buildPrompt(promptId, sessionData);
 
     const apiKey = process.env.GEMINI_API_KEY;
-    console.log("API key present:", !!apiKey, "length:", apiKey ? apiKey.length : 0, "starts with:", apiKey ? apiKey.substring(0, 4) : "N/A");
-
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 

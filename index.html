@@ -383,6 +383,40 @@
     font-size: 0.85rem;
     padding: 0.5rem 0;
   }
+
+  /* Weak signals block */
+  .weak-signals {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    border: 1px solid var(--gray);
+    background: #fafafa;
+  }
+
+  .weak-signals-title {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .weak-signals-content {
+    font-size: 0.875rem;
+    line-height: 1.7;
+    font-weight: 300;
+    white-space: pre-wrap;
+  }
+
+  .weak-signals-content .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--accent);
+    margin-left: 2px;
+    animation: blink 0.8s infinite;
+    vertical-align: text-bottom;
+  }
 </style>
 </head>
 <body>
@@ -502,6 +536,10 @@
     <h2 class="mb-1" id="title-distant">The Distant Future</h2>
     <div class="archetype-badge" id="badge-archetype"></div>
     <div class="scenario-text mb-4" id="text-distant"></div>
+    <div class="weak-signals" id="weak-signals-block" style="display:none;">
+      <div class="weak-signals-title" id="ws-title">Weak Signals</div>
+      <div class="weak-signals-content" id="text-weak-signals"></div>
+    </div>
     <div class="spacer"></div>
     <button class="btn btn-primary" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">Continue to 2040</button>
   </div>
@@ -586,6 +624,7 @@ let state = {
   // pipeline outputs cached locally
   seed_output: '',
   distant_future: '',
+  weak_signals: '',
   not_so_distant_future: '',
   near_future: '',
   consequences: '',
@@ -827,6 +866,7 @@ function loadSessionData(data) {
   state.technology_2 = data.tech_b_name;
   state.seed_output = data.b1_output || '';
   state.distant_future = data.b2_output || '';
+  state.weak_signals = data.b4_output || '';
   state.not_so_distant_future = data.b5_output || '';
   state.near_future = data.b6_output || '';
   state.consequences = data.b8_output || '';
@@ -836,6 +876,10 @@ function loadSessionData(data) {
   // Populate text on screens
   if (state.distant_future) {
     document.getElementById('text-distant').textContent = state.distant_future;
+  }
+  if (state.weak_signals) {
+    document.getElementById('text-weak-signals').textContent = state.weak_signals;
+    document.getElementById('weak-signals-block').style.display = 'block';
   }
   if (state.not_so_distant_future) {
     document.getElementById('text-nsd').textContent = state.not_so_distant_future;
@@ -901,6 +945,10 @@ function subscribeToSession() {
 function updateViewerButtons() {
   if (state.distant_future) {
     document.getElementById('text-distant').textContent = state.distant_future;
+  }
+  if (state.weak_signals) {
+    document.getElementById('text-weak-signals').textContent = state.weak_signals;
+    document.getElementById('weak-signals-block').style.display = 'block';
   }
   if (state.not_so_distant_future) {
     document.getElementById('text-nsd').textContent = state.not_so_distant_future;
@@ -982,25 +1030,12 @@ function deriveArchetype() {
 }
 
 // ---------- STREAMING ----------
-async function streamFromAPI(promptId, targetElementId, sessionField) {
+async function streamFromAPI(promptId, targetElementId, sessionField, extraData) {
   const targetEl = document.getElementById(targetElementId);
   targetEl.innerHTML = '<span class="cursor"></span>';
   let accumulated = '';
 
-  const sessionData = {
-    archetype: state.archetype,
-    resource_outlook: state.resource_outlook,
-    system_stability: state.system_stability,
-    dominant_value: state.dominant_value,
-    technology_1: state.technology_1,
-    technology_2: state.technology_2,
-    language: state.language,
-    seed_output: state.seed_output,
-    distant_future: state.distant_future,
-    not_so_distant_future: state.not_so_distant_future,
-    near_future: state.near_future,
-    intervention_text: state.intervention_text,
-  };
+  const sessionData = buildSessionData(extraData);
 
   const response = await fetch('/api/generate', {
     method: 'POST',
@@ -1077,22 +1112,29 @@ async function streamFromAPI(promptId, targetElementId, sessionField) {
   return accumulated;
 }
 
-// Silent call (no streaming to UI)
-async function silentAPICall(promptId) {
-  const sessionData = {
+// Build sessionData object for API calls
+function buildSessionData(extra) {
+  return {
     archetype: state.archetype,
     resource_outlook: state.resource_outlook,
     system_stability: state.system_stability,
     dominant_value: state.dominant_value,
     technology_1: state.technology_1,
     technology_2: state.technology_2,
+    sector_name: 'Energy',
     language: state.language,
     seed_output: state.seed_output,
     distant_future: state.distant_future,
     not_so_distant_future: state.not_so_distant_future,
     near_future: state.near_future,
     intervention_text: state.intervention_text,
+    ...extra,
   };
+}
+
+// Silent call (no streaming to UI)
+async function silentAPICall(promptId, extraData) {
+  const sessionData = buildSessionData(extraData);
 
   const response = await fetch('/api/generate', {
     method: 'POST',
@@ -1151,7 +1193,7 @@ async function generateScenario() {
   document.getElementById('cards-loading').style.display = 'block';
 
   try {
-    // b1: Seed (silent)
+    // B1: Seed (silent)
     document.getElementById('loading-text').textContent = t('loading-text');
     state.seed_output = await silentAPICall('b1');
     await sb.from('sessions').update({ b1_output: state.seed_output }).eq('session_id', state.sessionId);
@@ -1160,18 +1202,28 @@ async function generateScenario() {
     await sb.from('sessions').update({ status: 'distant_future' }).eq('session_id', state.sessionId);
     showScreen('distant');
 
-    // b2: Distant future (streamed)
+    // B2: Distant future (streamed)
     state.distant_future = await streamFromAPI('b2', 'text-distant', 'b2_output');
 
-    // b3: Assessment (silent)
-    const assessment = await silentAPICall('b3');
+    // B3: Assessment (silent) — max 2 revision cycles
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const assessment = await silentAPICall('b3');
 
-    // If needs revision, run b3_revision
-    if (assessment.toUpperCase().includes('NEEDS REVISION')) {
-      state.distant_future = await silentAPICall('b3_revision');
+      if (!assessment.toUpperCase().includes('NEEDS REVISION')) {
+        break; // PASS — continue pipeline
+      }
+
+      // B3_revision: fix the scenario, passing B3's critique as instructions
+      state.distant_future = await silentAPICall('b3_revision', {
+        b3_fix_instructions: assessment,
+      });
       await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
       document.getElementById('text-distant').textContent = state.distant_future;
     }
+
+    // B4: Weak signals (streamed to distinct block on same screen)
+    document.getElementById('weak-signals-block').style.display = 'block';
+    state.weak_signals = await streamFromAPI('b4', 'text-weak-signals', 'b4_output');
 
     // Show continue button
     document.getElementById('btn-to-nsd').style.display = 'block';
@@ -1197,15 +1249,11 @@ async function continueToNear() {
   await sb.from('sessions').update({ status: 'near_future' }).eq('session_id', state.sessionId);
   showScreen('near');
 
-  // b6: Near future (streamed)
+  // B6: Near future (streamed)
   state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
 
-  // b7: Coherence assessment (silent)
-  try {
-    await silentAPICall('b7');
-  } catch (e) {
-    console.warn('b7 assessment failed, proceeding anyway:', e);
-  }
+  // B7: Coherence assessment (fire-and-forget, non-blocking)
+  silentAPICall('b7').catch(e => console.warn('B7 assessment failed:', e));
 
   document.getElementById('btn-to-intervention').style.display = 'block';
 }
@@ -1277,6 +1325,7 @@ function startOver() {
     selectedTechs: [],
     seed_output: '',
     distant_future: '',
+    weak_signals: '',
     not_so_distant_future: '',
     near_future: '',
     consequences: '',
@@ -1296,6 +1345,8 @@ function startOver() {
   document.getElementById('btn-generate').style.display = 'block';
   document.getElementById('cards-loading').style.display = 'none';
   document.getElementById('text-distant').textContent = '';
+  document.getElementById('text-weak-signals').textContent = '';
+  document.getElementById('weak-signals-block').style.display = 'none';
   document.getElementById('text-nsd').textContent = '';
   document.getElementById('text-near').textContent = '';
   document.getElementById('text-consequences').textContent = '';
