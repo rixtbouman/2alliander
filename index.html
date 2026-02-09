@@ -1194,8 +1194,10 @@ async function generateScenario() {
 
   try {
     // B1: Seed (silent)
+    console.log('[Pipeline] Starting B1...');
     document.getElementById('loading-text').textContent = t('loading-text');
     state.seed_output = await silentAPICall('b1');
+    console.log('[Pipeline] B1 complete, length:', state.seed_output.length);
     await sb.from('sessions').update({ b1_output: state.seed_output }).eq('session_id', state.sessionId);
 
     // Switch to distant future screen
@@ -1203,34 +1205,41 @@ async function generateScenario() {
     showScreen('distant');
 
     // B2: Distant future (streamed)
+    console.log('[Pipeline] Starting B2...');
     state.distant_future = await streamFromAPI('b2', 'text-distant', 'b2_output');
+    console.log('[Pipeline] B2 complete, length:', state.distant_future.length);
 
     // B3: Assessment (silent) — max 2 revision cycles
     for (let attempt = 0; attempt < 2; attempt++) {
+      console.log('[Pipeline] Starting B3, attempt', attempt + 1, '...');
       const assessment = await silentAPICall('b3');
+      console.log('[Pipeline] B3 complete, result:', assessment.substring(0, 100));
 
       if (!assessment.toUpperCase().includes('NEEDS REVISION')) {
-        break; // PASS — continue pipeline
+        console.log('[Pipeline] B3 PASSED');
+        break;
       }
 
-      // B3_revision: fix the scenario, passing B3's critique as instructions
+      console.log('[Pipeline] B3 NEEDS REVISION, running B3_revision...');
       state.distant_future = await silentAPICall('b3_revision', {
         b3_fix_instructions: assessment,
       });
+      console.log('[Pipeline] B3_revision complete, length:', state.distant_future.length);
       await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
       document.getElementById('text-distant').textContent = state.distant_future;
     }
 
     // B4: Weak signals (streamed to distinct block on same screen)
+    console.log('[Pipeline] Starting B4...');
     document.getElementById('weak-signals-block').style.display = 'block';
     state.weak_signals = await streamFromAPI('b4', 'text-weak-signals', 'b4_output');
+    console.log('[Pipeline] B4 complete, length:', state.weak_signals.length);
 
     // Show continue button
+    console.log('[Pipeline] Showing continue button');
     document.getElementById('btn-to-nsd').style.display = 'block';
   } catch (error) {
-    console.error('Pipeline error:', error);
-    document.getElementById('cards-loading').innerHTML =
-      '<p class="error-message">An error occurred. Please try again.</p>';
+    console.error('[Pipeline] Error at step:', error);
   }
 }
 
