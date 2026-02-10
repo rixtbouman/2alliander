@@ -6,7 +6,8 @@
 <title>Scenario Planning Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Shape:wght@100;300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
     --black: #000;
@@ -15,17 +16,14 @@
     --blue: #0000FF;
     --gray: #e5e5e5;
     --gray-dark: #888;
+    --gray-light: #f5f5f5;
   }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'Shape', sans-serif;
-    font-weight: 100;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 300;
     background: var(--white);
     color: var(--black);
     min-height: 100dvh;
@@ -41,6 +39,7 @@
     padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
+    position: relative;
   }
 
   h1, h2, h3 {
@@ -48,380 +47,249 @@
     font-weight: 400;
     letter-spacing: -0.02em;
   }
-
   h1 { font-size: 1.75rem; line-height: 1.2; }
   h2 { font-size: 1.25rem; line-height: 1.3; }
   h3 { font-size: 1rem; }
-
   p { line-height: 1.6; font-size: 0.95rem; }
 
-  .screen {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    animation: fadeIn 0.3s ease;
-  }
-
-  .screen.active {
-    display: flex;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .screen { display: none; flex-direction: column; flex: 1; animation: fadeIn 0.3s ease; }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
   .spacer { flex: 1; }
 
+  /* Buttons */
   .btn {
-    display: block;
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid var(--black);
-    background: var(--white);
-    color: var(--black);
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.875rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    text-align: center;
+    display: block; width: 100%; padding: 1rem;
+    border: 2px solid var(--black); background: var(--white); color: var(--black);
+    font-family: 'Roboto Mono', monospace; font-size: 0.875rem; font-weight: 500;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.15s ease; text-align: center;
   }
-
   .btn:hover { background: var(--black); color: var(--white); }
   .btn:active { transform: scale(0.98); }
-
-  .btn-primary {
-    background: var(--black);
-    color: var(--white);
-  }
+  .btn-primary { background: var(--black); color: var(--white); }
   .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
-
-  .btn-accent {
-    background: var(--accent);
-    color: var(--white);
-    border-color: var(--accent);
-  }
+  .btn-accent { background: var(--accent); color: var(--white); border-color: var(--accent); }
   .btn-accent:hover { background: var(--blue); border-color: var(--blue); }
-
-  .btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  .btn:disabled:hover {
-    background: var(--white);
-    color: var(--black);
-  }
-
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn:disabled:hover { background: inherit; color: inherit; }
   .btn + .btn { margin-top: 0.75rem; }
 
   .subtitle {
-    color: var(--gray-dark);
-    font-size: 0.8rem;
+    color: var(--gray-dark); font-size: 0.8rem;
     font-family: 'Roboto Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;
   }
 
   .session-code-display {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 3rem;
-    font-weight: 700;
-    letter-spacing: 0.3em;
-    text-align: center;
-    padding: 2rem 0;
-    color: var(--accent);
+    font-family: 'Roboto Mono', monospace; font-size: 3rem; font-weight: 700;
+    letter-spacing: 0.3em; text-align: center; padding: 2rem 0; color: var(--accent);
   }
 
   input[type="text"], textarea {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid var(--gray);
-    font-family: 'Shape', sans-serif;
-    font-size: 1rem;
-    font-weight: 300;
-    outline: none;
-    transition: border-color 0.15s;
-    background: var(--white);
+    width: 100%; padding: 1rem; border: 2px solid var(--gray);
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 300;
+    outline: none; transition: border-color 0.15s; background: var(--white);
   }
+  input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+  textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
-  input[type="text"]:focus, textarea:focus {
-    border-color: var(--accent);
-  }
-
-  textarea {
-    min-height: 120px;
-    resize: vertical;
-    line-height: 1.6;
-  }
-
-  /* Toggle switch for language */
-  .toggle-group {
-    display: flex;
-    border: 2px solid var(--black);
-    overflow: hidden;
-  }
-
+  /* Toggle */
+  .toggle-group { display: flex; border: 2px solid var(--black); overflow: hidden; }
   .toggle-option {
-    flex: 1;
-    padding: 0.75rem;
-    text-align: center;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    flex: 1; padding: 0.75rem; text-align: center;
+    font-family: 'Roboto Mono', monospace; font-size: 0.8rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em;
   }
+  .toggle-option.active { background: var(--black); color: var(--white); }
 
-  .toggle-option.active {
-    background: var(--black);
-    color: var(--white);
-  }
-
-  /* Statement sliders */
-  .slider-group {
-    margin-bottom: 1.5rem;
-  }
-
+  /* Sliders */
+  .slider-group { margin-bottom: 1.5rem; }
   .slider-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    font-family: 'Roboto Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
-    color: var(--gray-dark);
+    display: flex; justify-content: space-between; font-size: 0.75rem;
+    font-family: 'Roboto Mono', monospace; text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--gray-dark);
   }
-
-  .slider-labels span.selected-label {
-    color: var(--black);
-    font-weight: 500;
-  }
-
+  .slider-labels span.selected-label { color: var(--black); font-weight: 500; }
   input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 2px;
-    background: var(--gray);
-    outline: none;
-    margin: 0.5rem 0;
+    -webkit-appearance: none; width: 100%; height: 2px;
+    background: var(--gray); outline: none; margin: 0.5rem 0;
   }
-
   input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    border: 2px solid var(--white);
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); cursor: pointer; border: 2px solid var(--white);
     box-shadow: 0 0 0 2px var(--accent);
   }
-
   input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    border: 2px solid var(--white);
-    box-shadow: 0 0 0 2px var(--accent);
+    width: 20px; height: 20px; border-radius: 50%; background: var(--accent);
+    cursor: pointer; border: 2px solid var(--white); box-shadow: 0 0 0 2px var(--accent);
   }
 
   /* Tech grid */
-  .tech-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-
+  .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
   .tech-card {
-    padding: 1rem;
-    border: 2px solid var(--gray);
-    text-align: center;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 400;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    padding: 1rem; border: 2px solid var(--gray); text-align: center;
+    font-family: 'Roboto Mono', monospace; font-size: 0.8rem; font-weight: 400;
+    cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em;
   }
+  .tech-card.selected { border-color: var(--accent); background: var(--accent); color: var(--white); }
+  .tech-card.disabled { opacity: 0.3; cursor: not-allowed; }
 
-  .tech-card.selected {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: var(--white);
-  }
-
-  .tech-card.disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+  /* Choice tags */
+  .choice-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+  .choice-tag {
+    font-family: 'Roboto Mono', monospace; font-size: 0.6rem; font-weight: 400;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem; border: 1px solid var(--gray); color: var(--gray-dark);
   }
 
   /* Scenario text */
-  .scenario-text {
-    font-size: 1rem;
-    line-height: 1.8;
-    font-weight: 300;
-    white-space: pre-wrap;
+  .scenario-text { font-size: 1rem; line-height: 1.8; font-weight: 300; white-space: pre-wrap; }
+  .scenario-text .cursor, .weak-signals-content .cursor {
+    display: inline-block; width: 2px; height: 1.1em; background: var(--accent);
+    margin-left: 2px; animation: blink 0.8s infinite; vertical-align: text-bottom;
   }
-
-  .scenario-text .cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1.1em;
-    background: var(--accent);
-    margin-left: 2px;
-    animation: blink 0.8s infinite;
-    vertical-align: text-bottom;
-  }
-
-  @keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-  }
+  @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
 
   .timeframe {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: 0.25rem;
+    font-family: 'Roboto Mono', monospace; font-size: 0.75rem; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.25rem;
   }
-
   .archetype-badge {
-    display: inline-block;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 0.25rem 0.75rem;
-    border: 1px solid var(--accent);
-    color: var(--accent);
+    display: inline-block; font-family: 'Roboto Mono', monospace; font-size: 0.7rem;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 0.25rem 0.75rem; border: 1px solid var(--accent); color: var(--accent);
     margin-bottom: 1rem;
   }
 
-  /* Loading spinner */
+  /* Weak signals */
+  .weak-signals { margin-top: 2rem; padding: 1.25rem; border: 1px solid var(--gray); background: var(--gray-light); }
+  .weak-signals-title {
+    font-family: 'Roboto Mono', monospace; font-size: 0.7rem;
+    text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 1rem;
+  }
+  .weak-signals-content { font-size: 0.875rem; line-height: 1.7; font-weight: 300; white-space: pre-wrap; }
+
+  /* Facilitation prompt */
+  .facilitation {
+    margin-top: 1.5rem; padding: 1rem; border-left: 3px solid var(--accent);
+    background: var(--gray-light); font-size: 0.85rem; line-height: 1.6;
+    color: var(--gray-dark); font-style: italic;
+  }
+
+  /* Loading */
   .loading {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--gray-dark);
-    padding: 2rem 0;
+    display: flex; align-items: center; gap: 0.75rem;
+    font-family: 'Roboto Mono', monospace; font-size: 0.8rem; color: var(--gray-dark); padding: 2rem 0;
   }
-
-  .loading .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: pulse 1.2s infinite;
-  }
-
+  .loading .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s infinite; }
   .loading .dot:nth-child(2) { animation-delay: 0.2s; }
   .loading .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 0.2; }
-    50% { opacity: 1; }
+  /* Toast notification */
+  .toast {
+    position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+    background: var(--black); color: var(--white); padding: 0.75rem 1.25rem;
+    font-family: 'Roboto Mono', monospace; font-size: 0.75rem;
+    border-radius: 2px; z-index: 1000; display: none; text-align: center;
+    max-width: 380px; width: 90%;
   }
-
-  .mt-1 { margin-top: 0.5rem; }
-  .mt-2 { margin-top: 1rem; }
-  .mt-3 { margin-top: 1.5rem; }
-  .mt-4 { margin-top: 2rem; }
-  .mb-1 { margin-bottom: 0.5rem; }
-  .mb-2 { margin-bottom: 1rem; }
-  .mb-3 { margin-bottom: 1.5rem; }
-  .mb-4 { margin-bottom: 2rem; }
-
-  .waiting-message {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--gray-dark);
+  .toast.show { display: block; animation: fadeIn 0.3s ease; }
+  .toast-btn {
+    display: inline-block; margin-top: 0.5rem; padding: 0.3rem 0.75rem;
+    border: 1px solid var(--white); color: var(--white); background: none;
+    font-family: 'Roboto Mono', monospace; font-size: 0.7rem; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.05em;
   }
+  .toast-btn:hover { background: var(--white); color: var(--black); }
 
-  .waiting-message h2 {
-    color: var(--gray-dark);
-    margin-bottom: 1rem;
+  /* Nav arrows */
+  .screen-nav {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
   }
-
-  .summary-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--gray);
-    font-size: 0.875rem;
+  .nav-arrow {
+    font-family: 'Roboto Mono', monospace; font-size: 0.75rem; color: var(--gray-dark);
+    cursor: pointer; padding: 0.25rem 0.5rem; border: 1px solid var(--gray);
+    background: none; text-transform: uppercase; letter-spacing: 0.05em;
+    transition: all 0.15s;
   }
+  .nav-arrow:hover { border-color: var(--black); color: var(--black); }
+  .nav-arrow.hidden { visibility: hidden; }
 
-  .summary-item .label {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--gray-dark);
+  /* Char counter */
+  .char-counter {
+    font-family: 'Roboto Mono', monospace; font-size: 0.7rem; color: var(--gray-dark);
+    text-align: right; margin-top: 0.25rem;
   }
+  .char-counter.met { color: var(--accent); }
 
-  .summary-item .value {
-    font-weight: 400;
-    text-align: right;
+  /* Attitude cards */
+  .attitude-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
+  .attitude-card {
+    padding: 0.75rem; border: 2px solid var(--gray); text-align: center;
+    font-family: 'Roboto Mono', monospace; font-size: 0.65rem; font-weight: 400;
+    cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.04em;
+    line-height: 1.3;
   }
+  .attitude-card.selected { border-color: var(--accent); background: var(--accent); color: var(--white); }
 
-  .error-message {
-    color: #c00;
-    font-size: 0.85rem;
-    padding: 0.5rem 0;
-  }
-
-  /* Weak signals block */
-  .weak-signals {
-    margin-top: 2rem;
-    padding: 1.25rem;
-    border: 1px solid var(--gray);
-    background: #fafafa;
-  }
-
-  .weak-signals-title {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
+  /* Insight fields */
+  .insight-group { margin-bottom: 1.25rem; }
+  .insight-label {
+    font-family: 'Roboto Mono', monospace; font-size: 0.7rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem;
     color: var(--accent);
-    margin-bottom: 1rem;
   }
+  .insight-group textarea { min-height: 80px; }
 
-  .weak-signals-content {
-    font-size: 0.875rem;
-    line-height: 1.7;
-    font-weight: 300;
-    white-space: pre-wrap;
+  /* Summary */
+  .summary-item {
+    display: flex; justify-content: space-between; padding: 0.75rem 0;
+    border-bottom: 1px solid var(--gray); font-size: 0.875rem;
   }
+  .summary-item .label {
+    font-family: 'Roboto Mono', monospace; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-dark);
+  }
+  .summary-item .value { font-weight: 400; text-align: right; }
 
-  .weak-signals-content .cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    background: var(--accent);
-    margin-left: 2px;
-    animation: blink 0.8s infinite;
-    vertical-align: text-bottom;
+  .waiting-message { text-align: center; padding: 3rem 1rem; color: var(--gray-dark); }
+  .waiting-message h2 { color: var(--gray-dark); margin-bottom: 1rem; }
+
+  .error-message { color: #c00; font-size: 0.85rem; padding: 0.5rem 0; }
+
+  .mt-1 { margin-top: 0.5rem; } .mt-2 { margin-top: 1rem; } .mt-3 { margin-top: 1.5rem; } .mt-4 { margin-top: 2rem; }
+  .mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; } .mb-3 { margin-bottom: 1.5rem; } .mb-4 { margin-bottom: 2rem; }
+
+  /* Hidden PDF template */
+  #pdf-template { display: none; }
+  #pdf-template.rendering {
+    display: block; position: absolute; left: -9999px;
+    width: 700px; padding: 40px; background: #fff; color: #000;
+    font-family: 'Space Grotesk', sans-serif; font-size: 11px; line-height: 1.6;
   }
+  #pdf-template h2 { font-family: 'Roboto Mono', monospace; font-size: 14px; margin: 20px 0 8px; border-bottom: 2px solid #7877f6; padding-bottom: 4px; }
+  #pdf-template h3 { font-family: 'Roboto Mono', monospace; font-size: 12px; margin: 14px 0 6px; color: #7877f6; }
+  #pdf-template .pdf-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+  #pdf-template .pdf-header h1 { font-family: 'Roboto Mono', monospace; font-size: 20px; margin-bottom: 8px; }
+  #pdf-template .pdf-meta { font-size: 10px; color: #888; }
+  #pdf-template .pdf-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
+  #pdf-template .pdf-tag { font-family: 'Roboto Mono', monospace; font-size: 9px; padding: 2px 8px; border: 1px solid #ccc; text-transform: uppercase; }
+  #pdf-template .pdf-section { margin-bottom: 20px; white-space: pre-wrap; }
+  #pdf-template .pdf-footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 2px solid #000; font-size: 10px; color: #888; }
 </style>
 </head>
 <body>
 
 <div id="app">
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast">
+    <span id="toast-text"></span><br>
+    <button class="toast-btn" id="toast-btn" onclick="goToModeratorScreen()">Go there</button>
+  </div>
 
   <!-- Screen 1: Welcome -->
   <div class="screen active" id="screen-welcome">
@@ -440,7 +308,6 @@
       <div class="toggle-option active" onclick="setLanguage('en')" id="lang-en">English</div>
       <div class="toggle-option" onclick="setLanguage('nl')" id="lang-nl">Nederlands</div>
     </div>
-
     <p class="subtitle" id="label-role">Your role</p>
     <button class="btn btn-primary mb-2" onclick="startAsModerator()" id="btn-moderator">Start as Moderator</button>
     <button class="btn" onclick="startAsViewer()" id="btn-viewer">Join as Viewer</button>
@@ -448,14 +315,12 @@
 
   <!-- Screen 3: Session Code -->
   <div class="screen" id="screen-session">
-    <!-- Moderator view -->
     <div id="session-moderator" style="display:none;">
       <p class="subtitle" id="label-session-code">Session Code</p>
       <div class="session-code-display" id="display-code"></div>
       <p class="mb-4" id="session-share-text">Share this code with your group so they can follow along.</p>
       <button class="btn btn-primary" onclick="showScreen('cards')" id="btn-to-cards">Continue to Cards</button>
     </div>
-    <!-- Viewer view -->
     <div id="session-viewer" style="display:none;">
       <p class="subtitle" id="label-enter-code">Enter Session Code</p>
       <input type="text" id="input-code" maxlength="6" placeholder="ABC123" style="text-align:center; font-family:'Roboto Mono',monospace; font-size:1.5rem; letter-spacing:0.2em; text-transform:uppercase;" class="mb-3">
@@ -466,10 +331,8 @@
 
   <!-- Screen 4: Card Selection -->
   <div class="screen" id="screen-cards">
-    <!-- Moderator: card selection UI -->
     <div id="cards-moderator">
       <h2 class="mb-3" id="cards-title">Shape Your Future</h2>
-
       <div class="slider-group">
         <p class="subtitle" id="label-resource">Resource Outlook</p>
         <div class="slider-labels">
@@ -478,7 +341,6 @@
         </div>
         <input type="range" min="0" max="1" value="0" step="1" id="slider-resource" oninput="updateSliderLabels()">
       </div>
-
       <div class="slider-group">
         <p class="subtitle" id="label-stability">System Stability</p>
         <div class="slider-labels">
@@ -487,7 +349,6 @@
         </div>
         <input type="range" min="0" max="1" value="0" step="1" id="slider-stability" oninput="updateSliderLabels()">
       </div>
-
       <div class="slider-group">
         <p class="subtitle" id="label-values">Dominant Value</p>
         <div class="slider-labels">
@@ -496,7 +357,6 @@
         </div>
         <input type="range" min="0" max="1" value="0" step="1" id="slider-values" oninput="updateSliderLabels()">
       </div>
-
       <p class="subtitle mt-2" id="label-tech-select">Select 2 Technologies</p>
       <div class="tech-grid" id="tech-grid">
         <div class="tech-card" onclick="toggleTech(this, 'AGI')">AGI</div>
@@ -506,10 +366,7 @@
         <div class="tech-card" onclick="toggleTech(this, 'NeuroTech')">NeuroTech</div>
         <div class="tech-card" onclick="toggleTech(this, 'ClimateTech')">ClimateTech</div>
       </div>
-
       <button class="btn btn-accent" onclick="generateScenario()" id="btn-generate" disabled>Generate Scenario</button>
-
-      <!-- Loading state -->
       <div id="cards-loading" style="display:none;">
         <div class="loading">
           <div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -517,8 +374,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Viewer: waiting -->
     <div id="cards-viewer" style="display:none;">
       <div class="waiting-message">
         <div class="loading" style="justify-content:center; margin-bottom:1rem;">
@@ -530,75 +385,159 @@
     </div>
   </div>
 
-  <!-- Screen 5: Distant Future (2045-2050) -->
+  <!-- Screen 5: Distant Future -->
   <div class="screen" id="screen-distant">
+    <div class="screen-nav">
+      <button class="nav-arrow hidden" id="nav-back-distant">&larr; Back</button>
+      <span></span>
+    </div>
+    <div class="choice-tags" id="tags-distant"></div>
     <div class="timeframe" id="tf-distant">2045 — 2050</div>
     <h2 class="mb-1" id="title-distant">The Distant Future</h2>
     <div class="archetype-badge" id="badge-archetype"></div>
-    <div class="scenario-text mb-4" id="text-distant"></div>
+    <div class="scenario-text mb-2" id="text-distant"></div>
     <div class="weak-signals" id="weak-signals-block" style="display:none;">
       <div class="weak-signals-title" id="ws-title">Weak Signals</div>
       <div class="weak-signals-content" id="text-weak-signals"></div>
     </div>
+    <div class="facilitation mt-3" id="facilitation-distant">Take 5 minutes to discuss: What surprised you about this future? What feels inevitable, and what feels like it could still go differently?</div>
     <div class="spacer"></div>
-    <button class="btn btn-primary" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">Continue to 2040</button>
+    <button class="btn btn-primary mt-3" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">Continue to 2040</button>
   </div>
 
-  <!-- Screen 6: Not So Distant Future (2035-2040) -->
+  <!-- Screen 6: Not So Distant Future -->
   <div class="screen" id="screen-nsd">
+    <div class="screen-nav">
+      <button class="nav-arrow" onclick="viewerNavigate('distant')">&larr; 2050</button>
+      <span></span>
+    </div>
+    <div class="choice-tags" id="tags-nsd"></div>
     <div class="timeframe" id="tf-nsd">2035 — 2040</div>
     <h2 class="mb-3" id="title-nsd">The Not So Distant Future</h2>
-    <div class="scenario-text mb-4" id="text-nsd"></div>
+    <div class="scenario-text mb-2" id="text-nsd"></div>
+    <div class="facilitation mt-3" id="facilitation-nsd">Discuss: What would need to happen in the next 15 years for this stepping stone to become reality? What obstacles do you see?</div>
     <div class="spacer"></div>
-    <button class="btn btn-primary" onclick="continueToNear()" id="btn-to-near" style="display:none;">Continue to 2030</button>
+    <button class="btn btn-primary mt-3" onclick="continueToNear()" id="btn-to-near" style="display:none;">Continue to 2030</button>
   </div>
 
-  <!-- Screen 7: Near Future (2027-2030) -->
+  <!-- Screen 7: Near Future -->
   <div class="screen" id="screen-near">
+    <div class="screen-nav">
+      <button class="nav-arrow" onclick="viewerNavigate('nsd')">&larr; 2040</button>
+      <span></span>
+    </div>
+    <div class="choice-tags" id="tags-near"></div>
     <div class="timeframe" id="tf-near">2027 — 2030</div>
     <h2 class="mb-3" id="title-near">The Near Future</h2>
-    <div class="scenario-text mb-4" id="text-near"></div>
+    <div class="scenario-text mb-2" id="text-near"></div>
+    <div class="facilitation mt-3" id="facilitation-near">Discuss: What in this near future do you recognize from your current work? What decisions being made today could set this path in motion?</div>
     <div class="spacer"></div>
-    <button class="btn btn-primary" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
+    <button class="btn btn-primary mt-3" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
   </div>
 
   <!-- Screen 8: Intervention -->
   <div class="screen" id="screen-intervention">
+    <div class="screen-nav">
+      <button class="nav-arrow" onclick="viewerNavigate('near')">&larr; 2030</button>
+      <span></span>
+    </div>
     <h2 class="mb-2" id="title-intervention">Intervention</h2>
-    <p class="mb-3" id="text-intervention-prompt">What action or strategy could your organisation take to alter this future?</p>
-    <textarea id="input-intervention" placeholder="Describe your intervention..."></textarea>
+    <div class="facilitation mb-3" id="facilitation-intervention">As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.</div>
+    <div id="intervention-moderator">
+      <textarea id="input-intervention" placeholder="Describe your intervention..." oninput="updateInterventionCounter()"></textarea>
+      <div class="char-counter" id="intervention-counter">0 / 20 min</div>
+    </div>
+    <div id="intervention-viewer" style="display:none;">
+      <textarea id="input-intervention-viewer" readonly placeholder="Waiting for moderator to type..." style="color:var(--gray-dark);"></textarea>
+    </div>
     <div class="spacer"></div>
-    <button class="btn btn-accent mt-3" onclick="submitIntervention()" id="btn-submit-intervention">Explore Consequences</button>
+    <button class="btn btn-accent mt-3" onclick="submitIntervention()" id="btn-submit-intervention" disabled>Explore Consequences</button>
   </div>
 
   <!-- Screen 9: Consequences -->
   <div class="screen" id="screen-consequences">
+    <div class="screen-nav">
+      <button class="nav-arrow" onclick="viewerNavigate('intervention')">&larr; Intervention</button>
+      <span></span>
+    </div>
+    <div class="choice-tags" id="tags-consequences"></div>
     <div class="timeframe" id="tf-consequences">Altered Future</div>
     <h2 class="mb-3" id="title-consequences">If You Intervene...</h2>
-    <div class="scenario-text mb-4" id="text-consequences"></div>
+    <div class="scenario-text mb-2" id="text-consequences"></div>
+    <div class="facilitation mt-3" id="facilitation-consequences">Reflect: Did the consequences of your intervention surprise you? What trade-offs emerged that you didn't expect?</div>
     <div class="spacer"></div>
-    <button class="btn btn-primary" onclick="showScreen('insights')" id="btn-to-insights" style="display:none;">What did we learn?</button>
+    <button class="btn btn-primary mt-3" onclick="showScreen('team')" id="btn-to-team" style="display:none;">Continue</button>
   </div>
 
-  <!-- Screen 10: Insights -->
+  <!-- Screen 10: Team & Attitudes -->
+  <div class="screen" id="screen-team">
+    <h2 class="mb-3" id="title-team">Your Team</h2>
+    <p class="subtitle" id="label-team-name">Team Name</p>
+    <input type="text" id="input-team-name" placeholder="Enter your team name..." class="mb-4">
+    <p class="subtitle" id="label-attitudes">Which attitudes are at your table?</p>
+    <div class="attitude-grid" id="attitude-grid">
+      <div class="attitude-card" onclick="toggleAttitude(this, 'Existential Alarmist')">Existential Alarmist</div>
+      <div class="attitude-card" onclick="toggleAttitude(this, 'Ethical Crusader')">Ethical Crusader</div>
+      <div class="attitude-card" onclick="toggleAttitude(this, 'Governance Guardian')">Governance Guardian</div>
+      <div class="attitude-card" onclick="toggleAttitude(this, 'Pragmatic Builder')">Pragmatic Builder</div>
+      <div class="attitude-card" onclick="toggleAttitude(this, 'Techno-Utopian')">Techno-Utopian</div>
+      <div class="attitude-card" onclick="toggleAttitude(this, 'Accelerationist')">Accelerationist</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-primary" onclick="proceedToInsights()" id="btn-to-insights">Continue to Insights</button>
+  </div>
+
+  <!-- Screen 11: Insights -->
   <div class="screen" id="screen-insights">
     <h2 class="mb-2" id="title-insights">Insights</h2>
-    <p class="mb-3" id="text-insights-prompt">What insights have emerged from exploring this scenario?</p>
-    <textarea id="input-insights" placeholder="Share your reflections..."></textarea>
+    <p class="mb-3" id="text-insights-prompt">What insights emerged from each perspective?</p>
+    <div id="insight-fields"></div>
+    <div class="insight-group">
+      <div class="insight-label" id="label-general-insight">General Insights</div>
+      <textarea id="input-insight-general" placeholder="Any other reflections..."></textarea>
+    </div>
     <div class="spacer"></div>
     <button class="btn btn-primary mt-3" onclick="submitInsights()" id="btn-submit-insights">Finish</button>
   </div>
 
-  <!-- Screen 11: Closing -->
+  <!-- Screen 12: Closing -->
   <div class="screen" id="screen-closing">
     <div class="spacer"></div>
     <h1 class="mb-2" id="title-closing">Thank You</h1>
-    <p class="mb-4" id="text-closing">Your scenario exploration is complete. Here's a summary of your session.</p>
+    <p class="mb-4" id="text-closing">Your scenario exploration is complete.</p>
     <div id="summary-list" class="mb-4"></div>
-    <div class="spacer"></div>
+    <button class="btn btn-accent mb-2" onclick="exportPDF()" id="btn-export">Export PDF</button>
     <button class="btn" onclick="startOver()" id="btn-new-session">Start New Session</button>
+    <div class="spacer"></div>
   </div>
 
+</div>
+
+<!-- Hidden PDF template -->
+<div id="pdf-template">
+  <div class="pdf-header">
+    <h1>Scenario Planning Tool</h1>
+    <div class="pdf-meta">
+      <span id="pdf-team"></span> &nbsp;|&nbsp; <span id="pdf-date"></span> &nbsp;|&nbsp; Session: <span id="pdf-code"></span>
+    </div>
+    <div class="pdf-meta" id="pdf-attitudes-line"></div>
+  </div>
+  <div class="pdf-tags" id="pdf-tags"></div>
+  <h2>The Distant Future — 2045–2050</h2>
+  <div class="pdf-section" id="pdf-distant"></div>
+  <h3>Weak Signals</h3>
+  <div class="pdf-section" id="pdf-weak-signals"></div>
+  <h2>The Not So Distant Future — 2035–2040</h2>
+  <div class="pdf-section" id="pdf-nsd"></div>
+  <h2>The Near Future — 2027–2030</h2>
+  <div class="pdf-section" id="pdf-near"></div>
+  <h2>Intervention</h2>
+  <div class="pdf-section" id="pdf-intervention"></div>
+  <h2>Consequences</h2>
+  <div class="pdf-section" id="pdf-consequences"></div>
+  <h2>Insights</h2>
+  <div class="pdf-section" id="pdf-insights"></div>
+  <div class="pdf-footer">Centre for Quantum and Society</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -606,12 +545,13 @@
 // ---------- STATE ----------
 const SUPABASE_URL = 'https://sejvhzowjdtuvmrqrgkf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlanZoem93amR0dXZtcnFyZ2tmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNzkyNDAsImV4cCI6MjA4NTk1NTI0MH0.ptPCW0i8OHkN847VwWYZGpWSKjtqUWuv_axw_yn9p6o';
-
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const ATTITUDES = ['Existential Alarmist', 'Ethical Crusader', 'Governance Guardian', 'Pragmatic Builder', 'Techno-Utopian', 'Accelerationist'];
 
 let state = {
   language: 'en',
-  role: null,       // 'moderator' | 'viewer'
+  role: null,
   sessionId: null,
   sessionCode: null,
   archetype: null,
@@ -621,7 +561,6 @@ let state = {
   technology_1: null,
   technology_2: null,
   selectedTechs: [],
-  // pipeline outputs cached locally
   seed_output: '',
   distant_future: '',
   weak_signals: '',
@@ -629,10 +568,15 @@ let state = {
   near_future: '',
   consequences: '',
   intervention_text: '',
-  insights: '',
+  team_name: '',
+  selectedAttitudes: [],
+  insights_data: {},
 };
 
 let realtimeChannel = null;
+let moderatorScreen = null; // tracks the moderator's current screen for viewers
+let toastTimer = null;
+let interventionSyncTimer = null;
 
 // ---------- i18n ----------
 const i18n = {
@@ -674,20 +618,32 @@ const i18n = {
     'title-near': 'The Near Future',
     'btn-to-intervention': 'What if we intervene?',
     'title-intervention': 'Intervention',
-    'text-intervention-prompt': 'What action or strategy could your organisation take to alter this future?',
     'btn-submit-intervention': 'Explore Consequences',
     'tf-consequences': 'Altered Future',
     'title-consequences': 'If You Intervene...',
-    'btn-to-insights': 'What did we learn?',
+    'btn-to-team': 'Continue',
+    'title-team': 'Your Team',
+    'label-team-name': 'Team Name',
+    'label-attitudes': 'Which attitudes are at your table?',
+    'btn-to-insights': 'Continue to Insights',
     'title-insights': 'Insights',
-    'text-insights-prompt': 'What insights have emerged from exploring this scenario?',
+    'text-insights-prompt': 'What insights emerged from each perspective?',
+    'label-general-insight': 'General Insights',
     'btn-submit-insights': 'Finish',
     'title-closing': 'Thank You',
-    'text-closing': 'Your scenario exploration is complete. Here\'s a summary of your session.',
+    'text-closing': 'Your scenario exploration is complete.',
+    'btn-export': 'Export PDF',
     'btn-new-session': 'Start New Session',
     'summary-archetype': 'Archetype',
     'summary-tech': 'Technologies',
     'summary-value': 'Dominant Value',
+    'facilitation-distant': 'Take 5 minutes to discuss: What surprised you about this future? What feels inevitable, and what feels like it could still go differently?',
+    'facilitation-nsd': 'Discuss: What would need to happen in the next 15 years for this stepping stone to become reality? What obstacles do you see?',
+    'facilitation-near': 'Discuss: What in this near future do you recognize from your current work? What decisions being made today could set this path in motion?',
+    'facilitation-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
+    'facilitation-consequences': 'Reflect: Did the consequences of your intervention surprise you? What trade-offs emerged that you didn\'t expect?',
+    'ws-title': 'Weak Signals',
+    'toast-moderator-moved': 'Moderator moved to a new phase',
   },
   nl: {
     'welcome-title': 'Scenarioplanning Tool',
@@ -727,36 +683,59 @@ const i18n = {
     'title-near': 'De Nabije Toekomst',
     'btn-to-intervention': 'Wat als we ingrijpen?',
     'title-intervention': 'Interventie',
-    'text-intervention-prompt': 'Welke actie of strategie zou jouw organisatie kunnen nemen om deze toekomst te veranderen?',
     'btn-submit-intervention': 'Verken Gevolgen',
     'tf-consequences': 'Veranderde Toekomst',
     'title-consequences': 'Als Je Ingrijpt...',
-    'btn-to-insights': 'Wat hebben we geleerd?',
+    'btn-to-team': 'Verder',
+    'title-team': 'Jouw Team',
+    'label-team-name': 'Teamnaam',
+    'label-attitudes': 'Welke attitudes zitten aan tafel?',
+    'btn-to-insights': 'Verder naar Inzichten',
     'title-insights': 'Inzichten',
-    'text-insights-prompt': 'Welke inzichten zijn naar voren gekomen bij het verkennen van dit scenario?',
+    'text-insights-prompt': 'Welke inzichten kwamen naar voren vanuit elk perspectief?',
+    'label-general-insight': 'Algemene Inzichten',
     'btn-submit-insights': 'Afronden',
     'title-closing': 'Bedankt',
-    'text-closing': 'Jullie scenarioverkenning is afgerond. Hier is een samenvatting van de sessie.',
+    'text-closing': 'Jullie scenarioverkenning is afgerond.',
+    'btn-export': 'Exporteer PDF',
     'btn-new-session': 'Nieuwe Sessie Starten',
     'summary-archetype': 'Archetype',
     'summary-tech': 'Technologieën',
     'summary-value': 'Dominante Waarde',
+    'facilitation-distant': 'Neem 5 minuten om te bespreken: Wat verraste jullie aan deze toekomst? Wat voelt onvermijdelijk en wat zou nog anders kunnen gaan?',
+    'facilitation-nsd': 'Bespreek: Wat zou er in de komende 15 jaar moeten gebeuren om dit tussenstation werkelijkheid te laten worden? Welke obstakels zien jullie?',
+    'facilitation-near': 'Bespreek: Wat herkennen jullie in deze nabije toekomst vanuit jullie huidige werk? Welke beslissingen die nu worden genomen kunnen dit pad in gang zetten?',
+    'facilitation-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
+    'facilitation-consequences': 'Reflecteer: Verraste de gevolgen van jullie interventie jullie? Welke afwegingen kwamen naar voren die jullie niet hadden verwacht?',
+    'ws-title': 'Zwakke Signalen',
+    'toast-moderator-moved': 'De moderator is naar een nieuwe fase gegaan',
   }
 };
 
-function t(key) {
-  return (i18n[state.language] && i18n[state.language][key]) || i18n.en[key] || key;
-}
+function t(key) { return (i18n[state.language] && i18n[state.language][key]) || i18n.en[key] || key; }
 
 function applyTranslations() {
   for (const key of Object.keys(i18n.en)) {
     const el = document.getElementById(key);
-    if (el) {
-      if (el.tagName === 'BUTTON' || el.tagName === 'DIV' || el.tagName === 'SPAN' || el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2') {
-        el.textContent = t(key);
-      }
+    if (el && (el.tagName === 'BUTTON' || el.tagName === 'DIV' || el.tagName === 'SPAN' || el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2')) {
+      el.textContent = t(key);
     }
   }
+}
+
+// ---------- CHOICE TAGS ----------
+function renderChoiceTags(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const tags = [
+    state.resource_outlook, state.system_stability, state.dominant_value,
+    state.technology_1, state.technology_2
+  ].filter(Boolean);
+  container.innerHTML = tags.map(t => `<span class="choice-tag">${t}</span>`).join('');
+}
+
+function renderAllTags() {
+  ['tags-distant', 'tags-nsd', 'tags-near', 'tags-consequences'].forEach(id => renderChoiceTags(id));
 }
 
 // ---------- NAVIGATION ----------
@@ -765,21 +744,62 @@ function showScreen(name) {
   const screen = document.getElementById('screen-' + name);
   if (screen) screen.classList.add('active');
 
+  // Render choice tags on scenario screens
+  if (['distant', 'nsd', 'near', 'consequences'].includes(name)) renderChoiceTags('tags-' + name);
+
+  // Show/hide moderator-only buttons for viewers
+  if (state.role === 'viewer') {
+    const modButtons = ['btn-to-nsd', 'btn-to-near', 'btn-to-intervention', 'btn-to-team', 'btn-submit-intervention'];
+    modButtons.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    // Show viewer intervention view
+    if (name === 'intervention') {
+      document.getElementById('intervention-moderator').style.display = 'none';
+      document.getElementById('intervention-viewer').style.display = 'block';
+    }
+  }
+
   // Update session status in Supabase if moderator
   if (state.role === 'moderator' && state.sessionId) {
     const statusMap = {
-      'cards': 'card_selection',
-      'distant': 'distant_future',
-      'nsd': 'not_so_distant_future',
-      'near': 'near_future',
-      'intervention': 'intervention',
-      'consequences': 'consequences',
-      'insights': 'insights',
-      'closing': 'closing',
+      'cards': 'card_selection', 'distant': 'distant_future', 'nsd': 'not_so_distant_future',
+      'near': 'near_future', 'intervention': 'intervention', 'consequences': 'consequences',
+      'team': 'team', 'insights': 'insights', 'closing': 'closing',
     };
     if (statusMap[name]) {
       sb.from('sessions').update({ status: statusMap[name] }).eq('session_id', state.sessionId).then();
     }
+  }
+}
+
+function viewerNavigate(screenName) {
+  // Viewers can navigate back without affecting the DB
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById('screen-' + screenName);
+  if (screen) screen.classList.add('active');
+  if (['distant', 'nsd', 'near', 'consequences'].includes(screenName)) renderChoiceTags('tags-' + screenName);
+}
+
+// ---------- TOAST ----------
+function showToast(text, targetScreen) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  moderatorScreen = targetScreen;
+  toast.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    goToModeratorScreen();
+  }, 5000);
+}
+
+function goToModeratorScreen() {
+  const toast = document.getElementById('toast');
+  toast.classList.remove('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  if (moderatorScreen) {
+    showScreen(moderatorScreen);
   }
 }
 
@@ -795,8 +815,6 @@ function setLanguage(lang) {
 async function startAsModerator() {
   state.role = 'moderator';
   state.sessionCode = generateCode();
-
-  // Create session in Supabase
   const { data, error } = await sb.from('sessions').insert({
     session_code: state.sessionCode,
     language: state.language,
@@ -804,11 +822,7 @@ async function startAsModerator() {
     sector_name: 'Energy',
   }).select().single();
 
-  if (error) {
-    console.error('Failed to create session:', error);
-    return;
-  }
-
+  if (error) { console.error('Failed to create session:', error); return; }
   state.sessionId = data.session_id;
   document.getElementById('display-code').textContent = state.sessionCode;
   document.getElementById('session-moderator').style.display = 'block';
@@ -826,34 +840,16 @@ async function startAsViewer() {
 async function joinSession() {
   const code = document.getElementById('input-code').value.trim().toUpperCase();
   const errEl = document.getElementById('join-error');
-
-  if (code.length < 4) {
-    errEl.textContent = 'Please enter a valid session code.';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  if (code.length < 4) { errEl.textContent = 'Please enter a valid session code.'; errEl.style.display = 'block'; return; }
   const { data, error } = await sb.from('sessions').select('*').eq('session_code', code).single();
-
-  if (error || !data) {
-    errEl.textContent = 'Session not found. Check the code and try again.';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  if (error || !data) { errEl.textContent = 'Session not found.'; errEl.style.display = 'block'; return; }
   errEl.style.display = 'none';
   state.sessionId = data.session_id;
   state.sessionCode = data.session_code;
   state.language = (data.language || 'en').toLowerCase();
   applyTranslations();
-
-  // Load existing session data
   loadSessionData(data);
-
-  // Subscribe to realtime updates
   subscribeToSession();
-
-  // Navigate to the correct screen based on session status
   navigateToStatus(data.status);
 }
 
@@ -871,133 +867,103 @@ function loadSessionData(data) {
   state.near_future = data.b6_output || '';
   state.consequences = data.b8_output || '';
   state.intervention_text = data.user_intervention || '';
-  state.insights = data.user_insights || '';
+  state.team_name = data.team_name || '';
+  state.selectedAttitudes = data.attitudes ? data.attitudes.split(',') : [];
+  state.insights_data = data.insights_data || {};
 
-  // Populate text on screens
-  if (state.distant_future) {
-    document.getElementById('text-distant').textContent = state.distant_future;
-  }
+  if (state.distant_future) document.getElementById('text-distant').textContent = state.distant_future;
   if (state.weak_signals) {
     document.getElementById('text-weak-signals').textContent = state.weak_signals;
     document.getElementById('weak-signals-block').style.display = 'block';
   }
-  if (state.not_so_distant_future) {
-    document.getElementById('text-nsd').textContent = state.not_so_distant_future;
+  if (state.not_so_distant_future) document.getElementById('text-nsd').textContent = state.not_so_distant_future;
+  if (state.near_future) document.getElementById('text-near').textContent = state.near_future;
+  if (state.consequences) document.getElementById('text-consequences').textContent = state.consequences;
+  if (state.archetype) document.getElementById('badge-archetype').textContent = state.archetype;
+  if (state.intervention_text && document.getElementById('input-intervention-viewer')) {
+    document.getElementById('input-intervention-viewer').value = state.intervention_text;
+    document.getElementById('input-intervention-viewer').style.color = 'var(--black)';
   }
-  if (state.near_future) {
-    document.getElementById('text-near').textContent = state.near_future;
-  }
-  if (state.consequences) {
-    document.getElementById('text-consequences').textContent = state.consequences;
-  }
-  if (state.archetype) {
-    document.getElementById('badge-archetype').textContent = state.archetype;
-  }
+  renderAllTags();
 }
 
 function navigateToStatus(status) {
   const screenMap = {
-    'card_selection': 'cards',
-    'generating': 'cards',
-    'distant_future': 'distant',
-    'not_so_distant_future': 'nsd',
-    'near_future': 'near',
-    'intervention': 'intervention',
-    'consequences': 'consequences',
-    'insights': 'insights',
-    'closing': 'closing',
+    'card_selection': 'cards', 'generating': 'cards', 'distant_future': 'distant',
+    'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
+    'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
   };
-
   const screen = screenMap[status] || 'cards';
-
-  // For viewer on cards screen, show waiting UI
   if (state.role === 'viewer' && screen === 'cards') {
     document.getElementById('cards-moderator').style.display = 'none';
     document.getElementById('cards-viewer').style.display = 'block';
   }
-
   showScreen(screen);
 }
 
 function subscribeToSession() {
-  if (realtimeChannel) {
-    sb.removeChannel(realtimeChannel);
-  }
-
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
   realtimeChannel = sb
     .channel('session-' + state.sessionId)
     .on('postgres_changes', {
-      event: 'UPDATE',
-      schema: 'public',
-      table: 'sessions',
+      event: 'UPDATE', schema: 'public', table: 'sessions',
       filter: 'session_id=eq.' + state.sessionId,
     }, (payload) => {
       const data = payload.new;
+      const oldStatus = state.status;
+      state.status = data.status;
       loadSessionData(data);
-      navigateToStatus(data.status);
 
-      // Show continue buttons on viewer screens if content loaded
-      updateViewerButtons();
+      // If moderator moved to a new screen, show toast instead of force-navigating
+      if (state.role === 'viewer' && data.status !== oldStatus) {
+        const screenMap = {
+          'card_selection': 'cards', 'generating': 'cards', 'distant_future': 'distant',
+          'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
+          'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
+        };
+        const targetScreen = screenMap[data.status] || 'cards';
+        showToast(t('toast-moderator-moved'), targetScreen);
+      }
+
+      // Update viewer intervention textarea in real-time
+      if (state.role === 'viewer' && data.user_intervention) {
+        const viewerTA = document.getElementById('input-intervention-viewer');
+        if (viewerTA) {
+          viewerTA.value = data.user_intervention;
+          viewerTA.style.color = 'var(--black)';
+        }
+      }
     })
     .subscribe();
-}
-
-function updateViewerButtons() {
-  if (state.distant_future) {
-    document.getElementById('text-distant').textContent = state.distant_future;
-  }
-  if (state.weak_signals) {
-    document.getElementById('text-weak-signals').textContent = state.weak_signals;
-    document.getElementById('weak-signals-block').style.display = 'block';
-  }
-  if (state.not_so_distant_future) {
-    document.getElementById('text-nsd').textContent = state.not_so_distant_future;
-  }
-  if (state.near_future) {
-    document.getElementById('text-near').textContent = state.near_future;
-  }
-  if (state.consequences) {
-    document.getElementById('text-consequences').textContent = state.consequences;
-  }
 }
 
 // ---------- SESSION CODE ----------
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
   return code;
 }
 
-// ---------- SLIDER LABELS ----------
+// ---------- SLIDERS ----------
 function updateSliderLabels() {
-  const resource = document.getElementById('slider-resource').value;
-  const stability = document.getElementById('slider-stability').value;
-  const values = document.getElementById('slider-values').value;
-
-  // Resource
-  document.getElementById('label-abundance').classList.toggle('selected-label', resource === '0');
-  document.getElementById('label-scarce').classList.toggle('selected-label', resource === '1');
-
-  // Stability
-  document.getElementById('label-stable').classList.toggle('selected-label', stability === '0');
-  document.getElementById('label-breaks').classList.toggle('selected-label', stability === '1');
-
-  // Values
-  document.getElementById('label-collective').classList.toggle('selected-label', values === '0');
-  document.getElementById('label-individual').classList.toggle('selected-label', values === '1');
-
-  state.resource_outlook = resource === '0' ? 'abundance' : 'scarce';
-  state.system_stability = stability === '0' ? 'stable' : 'breaks_down';
-  state.dominant_value = values === '0' ? 'collectivism' : 'individualism';
+  const r = document.getElementById('slider-resource').value;
+  const s = document.getElementById('slider-stability').value;
+  const v = document.getElementById('slider-values').value;
+  document.getElementById('label-abundance').classList.toggle('selected-label', r === '0');
+  document.getElementById('label-scarce').classList.toggle('selected-label', r === '1');
+  document.getElementById('label-stable').classList.toggle('selected-label', s === '0');
+  document.getElementById('label-breaks').classList.toggle('selected-label', s === '1');
+  document.getElementById('label-collective').classList.toggle('selected-label', v === '0');
+  document.getElementById('label-individual').classList.toggle('selected-label', v === '1');
+  state.resource_outlook = r === '0' ? 'abundance' : 'scarce';
+  state.system_stability = s === '0' ? 'stable' : 'breaks_down';
+  state.dominant_value = v === '0' ? 'collectivism' : 'individualism';
 }
 
 // ---------- TECH SELECTION ----------
 function toggleTech(el, name) {
   if (el.classList.contains('disabled')) return;
-
   if (el.classList.contains('selected')) {
     el.classList.remove('selected');
     state.selectedTechs = state.selectedTechs.filter(t => t !== name);
@@ -1006,21 +972,63 @@ function toggleTech(el, name) {
     el.classList.add('selected');
     state.selectedTechs.push(name);
   }
-
-  // Disable unselected cards if 2 already selected
   document.querySelectorAll('.tech-card').forEach(card => {
-    if (!card.classList.contains('selected')) {
-      card.classList.toggle('disabled', state.selectedTechs.length >= 2);
-    }
+    if (!card.classList.contains('selected')) card.classList.toggle('disabled', state.selectedTechs.length >= 2);
   });
-
   state.technology_1 = state.selectedTechs[0] || null;
   state.technology_2 = state.selectedTechs[1] || null;
-
   document.getElementById('btn-generate').disabled = state.selectedTechs.length < 2;
 }
 
-// ---------- ARCHETYPE MAPPING ----------
+// ---------- ATTITUDES ----------
+function toggleAttitude(el, name) {
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    state.selectedAttitudes = state.selectedAttitudes.filter(a => a !== name);
+  } else {
+    el.classList.add('selected');
+    state.selectedAttitudes.push(name);
+  }
+}
+
+function proceedToInsights() {
+  // Save team name and attitudes
+  state.team_name = document.getElementById('input-team-name').value.trim();
+  sb.from('sessions').update({
+    team_name: state.team_name,
+    attitudes: state.selectedAttitudes.join(','),
+  }).eq('session_id', state.sessionId).then();
+
+  // Build insight fields based on selected attitudes
+  const container = document.getElementById('insight-fields');
+  container.innerHTML = '';
+  state.selectedAttitudes.forEach(att => {
+    const group = document.createElement('div');
+    group.className = 'insight-group';
+    group.innerHTML = `<div class="insight-label">${att}</div><textarea id="input-insight-${att.replace(/\s+/g, '-').toLowerCase()}" placeholder="Insight from the ${att} perspective..."></textarea>`;
+    container.appendChild(group);
+  });
+
+  showScreen('insights');
+}
+
+// ---------- INTERVENTION ----------
+function updateInterventionCounter() {
+  const input = document.getElementById('input-intervention');
+  const counter = document.getElementById('intervention-counter');
+  const len = input.value.trim().length;
+  counter.textContent = `${len} / 20 min`;
+  counter.classList.toggle('met', len >= 20);
+  document.getElementById('btn-submit-intervention').disabled = len < 20;
+
+  // Sync to Supabase for viewers (debounced)
+  if (interventionSyncTimer) clearTimeout(interventionSyncTimer);
+  interventionSyncTimer = setTimeout(() => {
+    sb.from('sessions').update({ user_intervention: input.value }).eq('session_id', state.sessionId).then();
+  }, 300);
+}
+
+// ---------- ARCHETYPE ----------
 function deriveArchetype() {
   if (state.resource_outlook === 'abundance' && state.system_stability === 'stable') return 'Continued Growth';
   if (state.resource_outlook === 'scarce' && state.system_stability === 'breaks_down') return 'Collapse';
@@ -1029,90 +1037,7 @@ function deriveArchetype() {
   return 'Continued Growth';
 }
 
-// ---------- STREAMING ----------
-async function streamFromAPI(promptId, targetElementId, sessionField, extraData) {
-  const targetEl = document.getElementById(targetElementId);
-  targetEl.innerHTML = '<span class="cursor"></span>';
-  let accumulated = '';
-
-  const sessionData = buildSessionData(extraData);
-
-  const response = await fetch('/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      promptId,
-      sessionId: state.sessionId,
-      sessionData,
-    }),
-  });
-
-  if (!response.ok) {
-    targetEl.innerHTML = '<span class="error-message">Error generating content. Please try again.</span>';
-    throw new Error('API error: ' + response.status);
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-  let updateTimer = null;
-
-  // Periodically save to Supabase
-  function scheduleUpdate() {
-    if (updateTimer) clearTimeout(updateTimer);
-    updateTimer = setTimeout(async () => {
-      if (accumulated && sessionField) {
-        await sb.from('sessions').update({ [sessionField]: accumulated }).eq('session_id', state.sessionId);
-      }
-    }, 2000);
-  }
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-
-    // Parse SSE lines
-    const lines = buffer.split('\n');
-    buffer = lines.pop(); // keep incomplete line in buffer
-
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      const jsonStr = line.slice(6).trim();
-      if (!jsonStr) continue;
-
-      try {
-        const parsed = JSON.parse(jsonStr);
-        if (parsed.done) break;
-        if (parsed.error) {
-          targetEl.innerHTML = `<span class="error-message">${parsed.error}</span>`;
-          return accumulated;
-        }
-        if (parsed.text) {
-          accumulated += parsed.text;
-          targetEl.innerHTML = accumulated + '<span class="cursor"></span>';
-          scheduleUpdate();
-        }
-      } catch (e) {
-        // skip malformed JSON
-      }
-    }
-  }
-
-  // Remove cursor, set final text
-  targetEl.textContent = accumulated;
-
-  // Final save to Supabase
-  if (updateTimer) clearTimeout(updateTimer);
-  if (sessionField) {
-    await sb.from('sessions').update({ [sessionField]: accumulated }).eq('session_id', state.sessionId);
-  }
-
-  return accumulated;
-}
-
-// Build sessionData object for API calls
+// ---------- API HELPERS ----------
 function buildSessionData(extra) {
   return {
     archetype: state.archetype,
@@ -1132,27 +1057,17 @@ function buildSessionData(extra) {
   };
 }
 
-// Silent call (no streaming to UI)
 async function silentAPICall(promptId, extraData) {
   const sessionData = buildSessionData(extraData);
-
   const response = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      promptId,
-      sessionId: state.sessionId,
-      sessionData,
-    }),
+    body: JSON.stringify({ promptId, sessionId: state.sessionId, sessionData }),
   });
-
   if (!response.ok) throw new Error('API error: ' + response.status);
-
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
-  let accumulated = '';
-  let buffer = '';
-
+  let accumulated = '', buffer = '';
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -1161,14 +1076,56 @@ async function silentAPICall(promptId, extraData) {
     buffer = lines.pop();
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
+      try { const p = JSON.parse(line.slice(6).trim()); if (p.done) break; if (p.text) accumulated += p.text; } catch (e) {}
+    }
+  }
+  return accumulated;
+}
+
+async function streamFromAPI(promptId, targetElementId, sessionField, extraData) {
+  const targetEl = document.getElementById(targetElementId);
+  targetEl.innerHTML = '<span class="cursor"></span>';
+  let accumulated = '';
+  const sessionData = buildSessionData(extraData);
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ promptId, sessionId: state.sessionId, sessionData }),
+  });
+  if (!response.ok) {
+    targetEl.innerHTML = '<span class="error-message">Error generating content. Please try again.</span>';
+    throw new Error('API error: ' + response.status);
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '', updateTimer = null;
+  function scheduleUpdate() {
+    if (updateTimer) clearTimeout(updateTimer);
+    updateTimer = setTimeout(async () => {
+      if (accumulated && sessionField) await sb.from('sessions').update({ [sessionField]: accumulated }).eq('session_id', state.sessionId);
+    }, 2000);
+  }
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const jsonStr = line.slice(6).trim();
+      if (!jsonStr) continue;
       try {
-        const parsed = JSON.parse(line.slice(6).trim());
+        const parsed = JSON.parse(jsonStr);
         if (parsed.done) break;
-        if (parsed.text) accumulated += parsed.text;
+        if (parsed.error) { targetEl.innerHTML = `<span class="error-message">${parsed.error}</span>`; return accumulated; }
+        if (parsed.text) { accumulated += parsed.text; targetEl.innerHTML = accumulated + '<span class="cursor"></span>'; scheduleUpdate(); }
       } catch (e) {}
     }
   }
-
+  targetEl.textContent = accumulated;
+  if (updateTimer) clearTimeout(updateTimer);
+  if (sessionField) await sb.from('sessions').update({ [sessionField]: accumulated }).eq('session_id', state.sessionId);
   return accumulated;
 }
 
@@ -1176,19 +1133,12 @@ async function silentAPICall(promptId, extraData) {
 async function generateScenario() {
   state.archetype = deriveArchetype();
   document.getElementById('badge-archetype').textContent = state.archetype;
-
-  // Update session with card selections
   await sb.from('sessions').update({
-    dimension_a_value: state.resource_outlook,
-    dimension_b_value: state.system_stability,
-    nuance: state.dominant_value,
-    tech_a_name: state.technology_1,
-    tech_b_name: state.technology_2,
-    archetype: state.archetype,
-    status: 'generating',
+    dimension_a_value: state.resource_outlook, dimension_b_value: state.system_stability,
+    nuance: state.dominant_value, tech_a_name: state.technology_1, tech_b_name: state.technology_2,
+    archetype: state.archetype, status: 'generating',
   }).eq('session_id', state.sessionId);
 
-  // Show loading
   document.getElementById('btn-generate').style.display = 'none';
   document.getElementById('cards-loading').style.display = 'block';
 
@@ -1197,49 +1147,49 @@ async function generateScenario() {
     console.log('[Pipeline] Starting B1...');
     document.getElementById('loading-text').textContent = t('loading-text');
     state.seed_output = await silentAPICall('b1');
-    console.log('[Pipeline] B1 complete, length:', state.seed_output.length);
+    console.log('[Pipeline] B1 complete');
     await sb.from('sessions').update({ b1_output: state.seed_output }).eq('session_id', state.sessionId);
 
     // Switch to distant future screen
     await sb.from('sessions').update({ status: 'distant_future' }).eq('session_id', state.sessionId);
     showScreen('distant');
+    renderAllTags();
 
     // B2: Distant future (streamed)
     console.log('[Pipeline] Starting B2...');
     state.distant_future = await streamFromAPI('b2', 'text-distant', 'b2_output');
-    console.log('[Pipeline] B2 complete, length:', state.distant_future.length);
+    console.log('[Pipeline] B2 complete');
 
-    // B3: Assessment (silent) — max 2 revision cycles
-    for (let attempt = 0; attempt < 2; attempt++) {
-      console.log('[Pipeline] Starting B3, attempt', attempt + 1, '...');
-      const assessment = await silentAPICall('b3');
-      console.log('[Pipeline] B3 complete, result:', assessment.substring(0, 100));
-
-      if (!assessment.toUpperCase().includes('NEEDS REVISION')) {
-        console.log('[Pipeline] B3 PASSED');
-        break;
-      }
-
-      console.log('[Pipeline] B3 NEEDS REVISION, running B3_revision...');
-      state.distant_future = await silentAPICall('b3_revision', {
-        b3_fix_instructions: assessment,
-      });
-      console.log('[Pipeline] B3_revision complete, length:', state.distant_future.length);
-      await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
-      document.getElementById('text-distant').textContent = state.distant_future;
-    }
-
-    // B4: Weak signals (streamed to distinct block on same screen)
-    console.log('[Pipeline] Starting B4...');
+    // B3 + B4 in parallel
+    // Show weak signals loading indicator immediately
     document.getElementById('weak-signals-block').style.display = 'block';
-    state.weak_signals = await streamFromAPI('b4', 'text-weak-signals', 'b4_output');
-    console.log('[Pipeline] B4 complete, length:', state.weak_signals.length);
+    document.getElementById('text-weak-signals').innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Scanning for present-day signals...</span></div>';
+
+    // Start B3 (silent) and B4 (streamed) in parallel
+    console.log('[Pipeline] Starting B3 + B4 in parallel...');
+    const b3Promise = (async () => {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const assessment = await silentAPICall('b3');
+        console.log('[Pipeline] B3 attempt', attempt + 1, ':', assessment.substring(0, 80));
+        if (!assessment.toUpperCase().includes('NEEDS REVISION')) { console.log('[Pipeline] B3 PASSED'); return; }
+        console.log('[Pipeline] B3 NEEDS REVISION, running B3_revision...');
+        state.distant_future = await silentAPICall('b3_revision', { b3_fix_instructions: assessment });
+        await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
+        document.getElementById('text-distant').textContent = state.distant_future;
+      }
+    })();
+
+    const b4Promise = streamFromAPI('b4', 'text-weak-signals', 'b4_output');
+
+    // Wait for both to finish
+    const [, weakSignals] = await Promise.all([b3Promise, b4Promise]);
+    state.weak_signals = weakSignals;
+    console.log('[Pipeline] B3 + B4 complete');
 
     // Show continue button
-    console.log('[Pipeline] Showing continue button');
     document.getElementById('btn-to-nsd').style.display = 'block';
   } catch (error) {
-    console.error('[Pipeline] Error at step:', error);
+    console.error('[Pipeline] Error:', error);
   }
 }
 
@@ -1247,8 +1197,6 @@ async function continueToNotSoDistant() {
   document.getElementById('btn-to-nsd').style.display = 'none';
   await sb.from('sessions').update({ status: 'not_so_distant_future' }).eq('session_id', state.sessionId);
   showScreen('nsd');
-
-  // b5: Not so distant future (streamed)
   state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
   document.getElementById('btn-to-near').style.display = 'block';
 }
@@ -1257,43 +1205,40 @@ async function continueToNear() {
   document.getElementById('btn-to-near').style.display = 'none';
   await sb.from('sessions').update({ status: 'near_future' }).eq('session_id', state.sessionId);
   showScreen('near');
-
-  // B6: Near future (streamed)
   state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
-
-  // B7: Coherence assessment (fire-and-forget, non-blocking)
-  silentAPICall('b7').catch(e => console.warn('B7 assessment failed:', e));
-
+  // B7: fire-and-forget
+  silentAPICall('b7').catch(e => console.warn('B7 failed:', e));
   document.getElementById('btn-to-intervention').style.display = 'block';
 }
 
 async function submitIntervention() {
   const text = document.getElementById('input-intervention').value.trim();
-  if (!text) return;
-
+  if (text.length < 20) return;
   state.intervention_text = text;
-  await sb.from('sessions').update({
-    user_intervention: text,
-    status: 'consequences',
-  }).eq('session_id', state.sessionId);
-
+  await sb.from('sessions').update({ user_intervention: text, status: 'consequences' }).eq('session_id', state.sessionId);
   showScreen('consequences');
-
-  // b8: Consequences (streamed)
   state.consequences = await streamFromAPI('b8', 'text-consequences', 'b8_output');
-  document.getElementById('btn-to-insights').style.display = 'block';
+  document.getElementById('btn-to-team').style.display = 'block';
 }
 
 async function submitInsights() {
-  const text = document.getElementById('input-insights').value.trim();
-  state.insights = text;
+  // Collect all insights
+  const insightsData = {};
+  state.selectedAttitudes.forEach(att => {
+    const id = 'input-insight-' + att.replace(/\s+/g, '-').toLowerCase();
+    const el = document.getElementById(id);
+    if (el && el.value.trim()) insightsData[att] = el.value.trim();
+  });
+  const generalInsight = document.getElementById('input-insight-general').value.trim();
+  if (generalInsight) insightsData['General'] = generalInsight;
 
+  state.insights_data = insightsData;
   await sb.from('sessions').update({
-    user_insights: text,
+    insights_data: insightsData,
+    user_insights: JSON.stringify(insightsData),
     status: 'closing',
   }).eq('session_id', state.sessionId);
 
-  // Build summary
   buildSummary();
   showScreen('closing');
 }
@@ -1305,47 +1250,65 @@ function buildSummary() {
     { label: t('summary-tech'), value: [state.technology_1, state.technology_2].filter(Boolean).join(', ') || '—' },
     { label: t('summary-value'), value: state.dominant_value || '—' },
   ];
-
-  list.innerHTML = items.map(item => `
-    <div class="summary-item">
-      <span class="label">${item.label}</span>
-      <span class="value">${item.value}</span>
-    </div>
-  `).join('');
+  list.innerHTML = items.map(item => `<div class="summary-item"><span class="label">${item.label}</span><span class="value">${item.value}</span></div>`).join('');
 }
 
-function startOver() {
-  if (realtimeChannel) {
-    sb.removeChannel(realtimeChannel);
-    realtimeChannel = null;
+// ---------- PDF EXPORT ----------
+function exportPDF() {
+  const tpl = document.getElementById('pdf-template');
+
+  // Fill PDF template
+  document.getElementById('pdf-team').textContent = state.team_name || 'Unnamed Team';
+  document.getElementById('pdf-date').textContent = new Date().toLocaleDateString();
+  document.getElementById('pdf-code').textContent = state.sessionCode || '';
+  document.getElementById('pdf-attitudes-line').textContent = state.selectedAttitudes.length
+    ? 'Attitudes: ' + state.selectedAttitudes.join(', ') : '';
+
+  const tags = [state.resource_outlook, state.system_stability, state.dominant_value, state.archetype, state.technology_1, state.technology_2].filter(Boolean);
+  document.getElementById('pdf-tags').innerHTML = tags.map(t => `<span class="pdf-tag">${t}</span>`).join('');
+
+  document.getElementById('pdf-distant').textContent = state.distant_future || '';
+  document.getElementById('pdf-weak-signals').textContent = state.weak_signals || '';
+  document.getElementById('pdf-nsd').textContent = state.not_so_distant_future || '';
+  document.getElementById('pdf-near').textContent = state.near_future || '';
+  document.getElementById('pdf-intervention').textContent = state.intervention_text || '';
+  document.getElementById('pdf-consequences').textContent = state.consequences || '';
+
+  // Build insights text
+  let insightsText = '';
+  for (const [key, val] of Object.entries(state.insights_data)) {
+    insightsText += `${key}:\n${val}\n\n`;
   }
+  document.getElementById('pdf-insights').textContent = insightsText || 'No insights recorded.';
 
-  state = {
-    language: state.language,
-    role: null,
-    sessionId: null,
-    sessionCode: null,
-    archetype: null,
-    resource_outlook: 'abundance',
-    system_stability: 'stable',
-    dominant_value: 'collectivism',
-    technology_1: null,
-    technology_2: null,
-    selectedTechs: [],
-    seed_output: '',
-    distant_future: '',
-    weak_signals: '',
-    not_so_distant_future: '',
-    near_future: '',
-    consequences: '',
-    intervention_text: '',
-    insights: '',
-  };
+  // Render
+  tpl.classList.add('rendering');
+  const filename = `scenario-${state.sessionCode || 'export'}-${state.team_name || 'team'}.pdf`.replace(/\s+/g, '-').toLowerCase();
 
-  // Reset UI
-  document.querySelectorAll('.tech-card').forEach(card => {
-    card.classList.remove('selected', 'disabled');
+  html2pdf().set({
+    margin: 10,
+    filename: filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+  }).from(tpl).save().then(() => {
+    tpl.classList.remove('rendering');
   });
+}
+
+// ---------- RESET ----------
+function startOver() {
+  if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
+  state = {
+    language: state.language, role: null, sessionId: null, sessionCode: null,
+    archetype: null, resource_outlook: 'abundance', system_stability: 'stable',
+    dominant_value: 'collectivism', technology_1: null, technology_2: null, selectedTechs: [],
+    seed_output: '', distant_future: '', weak_signals: '', not_so_distant_future: '',
+    near_future: '', consequences: '', intervention_text: '', team_name: '',
+    selectedAttitudes: [], insights_data: {},
+  };
+  document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected', 'disabled'));
+  document.querySelectorAll('.attitude-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('slider-resource').value = 0;
   document.getElementById('slider-stability').value = 0;
   document.getElementById('slider-values').value = 0;
@@ -1360,15 +1323,18 @@ function startOver() {
   document.getElementById('text-near').textContent = '';
   document.getElementById('text-consequences').textContent = '';
   document.getElementById('input-intervention').value = '';
-  document.getElementById('input-insights').value = '';
+  document.getElementById('intervention-counter').textContent = '0 / 20 min';
+  document.getElementById('btn-submit-intervention').disabled = true;
+  document.getElementById('input-team-name').value = '';
+  document.getElementById('insight-fields').innerHTML = '';
+  document.getElementById('input-insight-general').value = '';
   document.getElementById('btn-to-nsd').style.display = 'none';
   document.getElementById('btn-to-near').style.display = 'none';
   document.getElementById('btn-to-intervention').style.display = 'none';
-  document.getElementById('btn-to-insights').style.display = 'none';
+  document.getElementById('btn-to-team').style.display = 'none';
   document.getElementById('cards-moderator').style.display = 'block';
   document.getElementById('cards-viewer').style.display = 'none';
   document.getElementById('summary-list').innerHTML = '';
-
   showScreen('welcome');
 }
 
