@@ -205,18 +205,23 @@
   }
   .toast-btn:hover { background: var(--white); color: var(--black); }
 
-  /* Nav arrows */
-  .screen-nav {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+  /* Bottom nav bar */
+  .bottom-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 0; margin-top: 1.5rem;
+    border-top: 1px solid var(--gray);
   }
-  .nav-arrow {
-    font-family: 'Roboto Mono', monospace; font-size: 0.75rem; color: var(--gray-dark);
-    cursor: pointer; padding: 0.25rem 0.5rem; border: 1px solid var(--gray);
+  .nav-btn {
+    font-family: 'Roboto Mono', monospace; font-size: 0.85rem; color: var(--gray-dark);
+    cursor: pointer; padding: 0.75rem 1.25rem; border: 1px solid var(--gray);
     background: none; text-transform: uppercase; letter-spacing: 0.05em;
-    transition: all 0.15s;
+    transition: all 0.15s; min-width: 100px; text-align: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
-  .nav-arrow:hover { border-color: var(--black); color: var(--black); }
-  .nav-arrow.hidden { visibility: hidden; }
+  .nav-btn:hover { border-color: var(--black); color: var(--black); }
+  .nav-btn:active { background: var(--gray-light); }
+  .nav-btn.hidden { visibility: hidden; }
 
   /* Char counter */
   .char-counter {
@@ -386,8 +391,6 @@
 
   <!-- Screen 5: Distant Future -->
   <div class="screen" id="screen-distant">
-    <div class="screen-nav" id="nav-distant">
-    </div>
     <div class="choice-tags" id="tags-distant"></div>
     <div class="timeframe" id="tf-distant">2045 — 2050</div>
     <h2 class="mb-1" id="title-distant">The Distant Future</h2>
@@ -400,14 +403,14 @@
     <div class="facilitation mt-3" id="facilitation-distant" style="display:none;">Take 5 minutes to discuss: What surprised you about this future? What feels inevitable, and what feels like it could still go differently?</div>
     <div class="spacer"></div>
     <button class="btn btn-primary mt-3" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">Continue to 2040</button>
+    <div class="bottom-nav" id="nav-distant" style="display:none;">
+      <button class="nav-btn hidden"></button>
+      <button class="nav-btn" onclick="navigateTo('nsd')" id="nav-fwd-distant" style="display:none;"><span id="label-forth">Forth</span> &rarr;</button>
+    </div>
   </div>
 
   <!-- Screen 6: Not So Distant Future -->
   <div class="screen" id="screen-nsd">
-    <div class="screen-nav">
-      <button class="nav-arrow" onclick="navigateTo('distant')">&larr; 2050</button>
-      <button class="nav-arrow" onclick="navigateTo('near')" id="nav-fwd-nsd" style="display:none;">2030 &rarr;</button>
-    </div>
     <div class="choice-tags" id="tags-nsd"></div>
     <div class="timeframe" id="tf-nsd">2035 — 2040</div>
     <h2 class="mb-3" id="title-nsd">The Not So Distant Future</h2>
@@ -415,14 +418,14 @@
     <div class="facilitation mt-3" id="facilitation-nsd" style="display:none;">Discuss: What would need to happen in the next 15 years for this stepping stone to become reality? What obstacles do you see?</div>
     <div class="spacer"></div>
     <button class="btn btn-primary mt-3" onclick="continueToNear()" id="btn-to-near" style="display:none;">Continue to 2030</button>
+    <div class="bottom-nav">
+      <button class="nav-btn" onclick="navigateTo('distant')">&larr; <span class="nav-back-label">Back</span></button>
+      <button class="nav-btn" onclick="navigateTo('near')" id="nav-fwd-nsd" style="display:none;"><span class="nav-forth-label">Forth</span> &rarr;</button>
+    </div>
   </div>
 
   <!-- Screen 7: Near Future -->
   <div class="screen" id="screen-near">
-    <div class="screen-nav">
-      <button class="nav-arrow" onclick="navigateTo('nsd')">&larr; 2040</button>
-      <button class="nav-arrow" onclick="navigateTo('intervention')" id="nav-fwd-near" style="display:none;">Intervention &rarr;</button>
-    </div>
     <div class="choice-tags" id="tags-near"></div>
     <div class="timeframe" id="tf-near">2027 — 2030</div>
     <h2 class="mb-3" id="title-near">The Near Future</h2>
@@ -430,14 +433,14 @@
     <div class="facilitation mt-3" id="facilitation-near" style="display:none;">Discuss: What in this near future do you recognize from your current work? What decisions being made today could set this path in motion?</div>
     <div class="spacer"></div>
     <button class="btn btn-primary mt-3" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
+    <div class="bottom-nav">
+      <button class="nav-btn" onclick="navigateTo('nsd')">&larr; <span class="nav-back-label">Back</span></button>
+      <button class="nav-btn" onclick="navigateTo('intervention')" id="nav-fwd-near" style="display:none;"><span class="nav-forth-label">Forth</span> &rarr;</button>
+    </div>
   </div>
 
   <!-- Screen 8: Intervention -->
   <div class="screen" id="screen-intervention">
-    <div class="screen-nav">
-      <button class="nav-arrow" onclick="navigateTo('near')">&larr; 2030</button>
-      <button class="nav-arrow" onclick="navigateTo('consequences')" id="nav-fwd-intervention" style="display:none;">Consequences &rarr;</button>
-    </div>
     <h2 class="mb-2" id="title-intervention">Intervention</h2>
     <div class="facilitation mb-3" id="facilitation-intervention">As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.</div>
     <div id="intervention-moderator">
@@ -449,14 +452,14 @@
     </div>
     <div class="spacer"></div>
     <button class="btn btn-accent mt-3" onclick="submitIntervention()" id="btn-submit-intervention" disabled>Explore Consequences</button>
+    <div class="bottom-nav">
+      <button class="nav-btn" onclick="navigateTo('near')">&larr; <span class="nav-back-label">Back</span></button>
+      <button class="nav-btn" onclick="navigateTo('consequences')" id="nav-fwd-intervention" style="display:none;"><span class="nav-forth-label">Forth</span> &rarr;</button>
+    </div>
   </div>
 
   <!-- Screen 9: Consequences -->
   <div class="screen" id="screen-consequences">
-    <div class="screen-nav">
-      <button class="nav-arrow" onclick="navigateTo('intervention')">&larr; Intervention</button>
-      <span></span>
-    </div>
     <div class="choice-tags" id="tags-consequences"></div>
     <div class="timeframe" id="tf-consequences">Altered Future</div>
     <h2 class="mb-3" id="title-consequences">If You Intervene...</h2>
@@ -465,6 +468,10 @@
     <button class="btn mt-2" onclick="showOriginalScenario()" id="btn-view-original" style="display:none;">View Original 2050 Scenario</button>
     <div class="spacer"></div>
     <button class="btn btn-primary mt-3" onclick="showScreen('team')" id="btn-to-team" style="display:none;">Continue</button>
+    <div class="bottom-nav">
+      <button class="nav-btn" onclick="navigateTo('intervention')">&larr; <span class="nav-back-label">Back</span></button>
+      <button class="nav-btn hidden"></button>
+    </div>
   </div>
 
   <!-- Screen 10: Team & Attitudes -->
@@ -666,6 +673,8 @@ const i18n = {
     'facilitation-consequences': 'Reflect: Did the consequences of your intervention surprise you? What trade-offs emerged that you didn\'t expect?',
     'ws-title': 'Weak Signals',
     'toast-moderator-moved': 'Moderator moved to a new phase',
+    'nav-back': 'Back',
+    'nav-forth': 'Forth',
   },
   nl: {
     'welcome-title': 'Scenarioplanning Tool',
@@ -735,6 +744,8 @@ const i18n = {
     'facilitation-consequences': 'Reflecteer: Verraste de gevolgen van jullie interventie jullie? Welke afwegingen kwamen naar voren die jullie niet hadden verwacht?',
     'ws-title': 'Zwakke Signalen',
     'toast-moderator-moved': 'De moderator is naar een nieuwe fase gegaan',
+    'nav-back': 'Terug',
+    'nav-forth': 'Volgende',
   }
 };
 
@@ -747,6 +758,9 @@ function applyTranslations() {
       el.textContent = t(key);
     }
   }
+  // Update all nav back/forth labels
+  document.querySelectorAll('.nav-back-label').forEach(el => el.textContent = t('nav-back'));
+  document.querySelectorAll('.nav-forth-label').forEach(el => el.textContent = t('nav-forth'));
 }
 
 // ---------- CHOICE TAGS ----------
@@ -900,6 +914,7 @@ function loadSessionData(data) {
   if (state.distant_future) {
     document.getElementById('text-distant').textContent = state.distant_future;
     showFacilitation('distant');
+    document.getElementById('nav-distant').style.display = 'flex';
   }
   if (state.weak_signals) {
     document.getElementById('text-weak-signals').textContent = state.weak_signals;
@@ -908,6 +923,7 @@ function loadSessionData(data) {
   if (state.not_so_distant_future) {
     document.getElementById('text-nsd').textContent = state.not_so_distant_future;
     showFacilitation('nsd');
+    document.getElementById('nav-fwd-distant').style.display = '';
     document.getElementById('nav-fwd-nsd').style.display = '';
   }
   if (state.near_future) {
@@ -1228,9 +1244,10 @@ async function generateScenario() {
     state.weak_signals = weakSignals;
     console.log('[Pipeline] B3 + B4 complete');
 
-    // Show continue button + facilitation prompt
+    // Show continue button + facilitation prompt + bottom nav
     showFacilitation('distant');
     document.getElementById('btn-to-nsd').style.display = 'block';
+    document.getElementById('nav-distant').style.display = 'flex';
   } catch (error) {
     console.error('[Pipeline] Error:', error);
   }
@@ -1243,7 +1260,8 @@ async function continueToNotSoDistant() {
   state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
   showFacilitation('nsd');
   document.getElementById('btn-to-near').style.display = 'block';
-  // Enable forward nav from distant to nsd
+  // Enable forward nav
+  document.getElementById('nav-fwd-distant').style.display = '';
   document.getElementById('nav-fwd-nsd').style.display = '';
 }
 
@@ -1411,8 +1429,9 @@ function startOver() {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
-  // Reset forward nav arrows
-  ['nav-fwd-nsd', 'nav-fwd-near', 'nav-fwd-intervention'].forEach(id => {
+  // Reset forward nav arrows + distant bottom nav
+  document.getElementById('nav-distant').style.display = 'none';
+  ['nav-fwd-distant', 'nav-fwd-nsd', 'nav-fwd-near', 'nav-fwd-intervention'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
