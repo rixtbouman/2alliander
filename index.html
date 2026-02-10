@@ -13,6 +13,7 @@
     --white: #fff;
     --accent: #7877f6;
     --blue: #0000FF;
+    --lime: #daf13e;
     --gray: #e5e5e5;
     --gray-dark: #888;
     --gray-light: #f5f5f5;
@@ -29,6 +30,38 @@
     display: flex;
     justify-content: center;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Background gradient circles */
+  .bg-circles {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .bg-circle {
+    position: absolute; border-radius: 50%;
+  }
+  .bg-circle-1 {
+    width: 500px; height: 500px; top: -150px; right: -120px;
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,255,0.08) 60%, rgba(0,0,255,0.15) 70%, transparent 80%);
+  }
+  .bg-circle-2 {
+    width: 400px; height: 400px; bottom: -100px; left: -100px;
+    background: radial-gradient(circle, transparent 35%, rgba(218,241,62,0.1) 55%, rgba(218,241,62,0.18) 65%, transparent 75%);
+  }
+  .bg-circle-3 {
+    width: 300px; height: 300px; top: 40%; left: -80px;
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,255,0.05) 60%, rgba(0,0,255,0.1) 70%, transparent 80%);
+  }
+  /* Stronger circles for welcome/closing */
+  .bg-circles.prominent .bg-circle-1 {
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,255,0.12) 50%, rgba(0,0,255,0.22) 65%, transparent 80%);
+  }
+  .bg-circles.prominent .bg-circle-2 {
+    background: radial-gradient(circle, transparent 25%, rgba(218,241,62,0.15) 45%, rgba(218,241,62,0.25) 60%, transparent 75%);
+  }
+  .bg-circles.prominent .bg-circle-3 {
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,255,0.08) 50%, rgba(0,0,255,0.15) 65%, transparent 80%);
   }
 
   #app {
@@ -39,6 +72,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    z-index: 1;
   }
 
   h1, h2, h3 {
@@ -57,22 +91,22 @@
 
   .spacer { flex: 1; }
 
-  /* Buttons */
+  /* Buttons — rounded, dotted border */
   .btn {
     display: block; width: 100%; padding: 1rem;
-    border: 2px solid var(--black); background: var(--white); color: var(--black);
+    border: 1px dotted var(--black); border-radius: 2rem;
+    background: var(--black); color: var(--white);
     font-family: 'Roboto Mono', monospace; font-size: 0.875rem; font-weight: 500;
     letter-spacing: 0.05em; text-transform: uppercase;
-    cursor: pointer; transition: all 0.15s ease; text-align: center;
+    cursor: pointer; transition: all 0.2s ease; text-align: center;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
-  .btn:hover { background: var(--black); color: var(--white); }
+  .btn:hover { background: var(--white); color: var(--black); }
   .btn:active { transform: scale(0.98); }
-  .btn-primary { background: var(--black); color: var(--white); }
-  .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
-  .btn-accent { background: var(--accent); color: var(--white); border-color: var(--accent); }
-  .btn-accent:hover { background: var(--blue); border-color: var(--blue); }
+  .btn-secondary { background: var(--white); color: var(--black); }
+  .btn-secondary:hover { background: var(--black); color: var(--white); }
   .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .btn:disabled:hover { background: inherit; color: inherit; }
+  .btn:disabled:hover { background: var(--black); color: var(--white); }
   .btn + .btn { margin-top: 0.75rem; }
 
   .subtitle {
@@ -83,19 +117,19 @@
 
   .session-code-display {
     font-family: 'Roboto Mono', monospace; font-size: 3rem; font-weight: 700;
-    letter-spacing: 0.3em; text-align: center; padding: 2rem 0; color: var(--accent);
+    letter-spacing: 0.3em; text-align: center; padding: 2rem 0; color: var(--black);
   }
 
   input[type="text"], textarea {
-    width: 100%; padding: 1rem; border: 2px solid var(--gray);
+    width: 100%; padding: 1rem; border: 1px solid var(--gray); border-radius: 1rem;
     font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 300;
     outline: none; transition: border-color 0.15s; background: var(--white);
   }
-  input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+  input[type="text"]:focus, textarea:focus { border-color: var(--blue); }
   textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
 
-  /* Toggle */
-  .toggle-group { display: flex; border: 2px solid var(--black); overflow: hidden; }
+  /* Language toggle — rounded */
+  .toggle-group { display: flex; border: 1px dotted var(--black); border-radius: 2rem; overflow: hidden; }
   .toggle-option {
     flex: 1; padding: 0.75rem; text-align: center;
     font-family: 'Roboto Mono', monospace; font-size: 0.8rem; font-weight: 500;
@@ -103,78 +137,73 @@
   }
   .toggle-option.active { background: var(--black); color: var(--white); }
 
-  /* Sliders */
-  .slider-group { margin-bottom: 1.5rem; }
-  .slider-labels {
-    display: flex; justify-content: space-between; font-size: 0.75rem;
-    font-family: 'Roboto Mono', monospace; text-transform: uppercase;
-    letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--gray-dark);
+  /* Statement toggle chips */
+  .chip-group { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .chip {
+    flex: 1; padding: 0.75rem 0.5rem; text-align: center;
+    font-family: 'Roboto Mono', monospace; font-size: 0.75rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.04em;
+    border: 1px solid var(--gray); border-radius: 2rem; background: var(--white); color: var(--black);
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
-  .slider-labels span.selected-label { color: var(--black); font-weight: 500; }
-  input[type="range"] {
-    -webkit-appearance: none; width: 100%; height: 2px;
-    background: var(--gray); outline: none; margin: 0.5rem 0;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
-    background: var(--accent); cursor: pointer; border: 2px solid var(--white);
-    box-shadow: 0 0 0 2px var(--accent);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 20px; height: 20px; border-radius: 50%; background: var(--accent);
-    cursor: pointer; border: 2px solid var(--white); box-shadow: 0 0 0 2px var(--accent);
-  }
+  .chip.selected { background: var(--lime); color: var(--black); border-color: var(--lime); }
 
-  /* Tech grid */
+  /* Tech grid — choice chips */
   .tech-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
   .tech-card {
-    padding: 1rem; border: 2px solid var(--gray); text-align: center;
+    padding: 0.875rem; border: 1px solid var(--gray); border-radius: 2rem; text-align: center;
     font-family: 'Roboto Mono', monospace; font-size: 0.8rem; font-weight: 400;
     cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
-  .tech-card.selected { border-color: var(--accent); background: var(--accent); color: var(--white); }
+  .tech-card.selected { border-color: var(--blue); background: var(--blue); color: var(--white); }
   .tech-card.disabled { opacity: 0.3; cursor: not-allowed; }
 
-  /* Choice tags */
+  /* Choice tags on scenario screens */
   .choice-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
   .choice-tag {
     font-family: 'Roboto Mono', monospace; font-size: 0.6rem; font-weight: 400;
     text-transform: uppercase; letter-spacing: 0.08em;
-    padding: 0.2rem 0.5rem; border: 1px solid var(--gray); color: var(--gray-dark);
+    padding: 0.2rem 0.5rem; border-radius: 1rem;
   }
+  .choice-tag.tag-statement { background: var(--lime); color: var(--black); }
+  .choice-tag.tag-tech { background: var(--blue); color: var(--white); }
 
-  /* Scenario text */
-  .scenario-text { font-size: 1rem; line-height: 1.8; font-weight: 300; white-space: pre-wrap; }
+  /* Scenario text — justified */
+  .scenario-text { font-size: 1rem; line-height: 1.8; font-weight: 300; white-space: pre-wrap; text-align: justify; }
   .scenario-text .cursor, .weak-signals-content .cursor {
-    display: inline-block; width: 2px; height: 1.1em; background: var(--accent);
+    display: inline-block; width: 2px; height: 1.1em; background: var(--blue);
     margin-left: 2px; animation: blink 0.8s infinite; vertical-align: text-bottom;
   }
   @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
 
   .timeframe {
-    font-family: 'Roboto Mono', monospace; font-size: 0.75rem; color: var(--accent);
+    font-family: 'Roboto Mono', monospace; font-size: 0.75rem; color: var(--blue);
     text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.25rem;
   }
   .archetype-badge {
     display: inline-block; font-family: 'Roboto Mono', monospace; font-size: 0.7rem;
     text-transform: uppercase; letter-spacing: 0.1em;
-    padding: 0.25rem 0.75rem; border: 1px solid var(--accent); color: var(--accent);
-    margin-bottom: 1rem;
+    padding: 0.25rem 0.75rem; border: 1px solid var(--blue); color: var(--blue);
+    border-radius: 1rem; margin-bottom: 1rem;
   }
 
   /* Weak signals */
-  .weak-signals { margin-top: 2rem; padding: 1.25rem; border: 1px solid var(--gray); background: var(--gray-light); }
+  .weak-signals {
+    margin-top: 2rem; padding: 1.25rem; border: 1px solid var(--gray);
+    background: var(--gray-light); border-radius: 1rem;
+  }
   .weak-signals-title {
     font-family: 'Roboto Mono', monospace; font-size: 0.7rem;
-    text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 1rem;
+    text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue); margin-bottom: 1rem;
   }
-  .weak-signals-content { font-size: 0.875rem; line-height: 1.7; font-weight: 300; white-space: pre-wrap; }
+  .weak-signals-content { font-size: 0.875rem; line-height: 1.7; font-weight: 300; white-space: pre-wrap; text-align: justify; }
 
   /* Facilitation prompt */
   .facilitation {
-    margin-top: 1.5rem; padding: 1rem; border-left: 3px solid var(--accent);
+    margin-top: 1.5rem; padding: 1rem; border-left: 3px solid var(--blue);
     background: var(--gray-light); font-size: 0.85rem; line-height: 1.6;
-    color: var(--gray-dark); font-style: italic;
+    color: var(--gray-dark); font-style: italic; border-radius: 0 0.5rem 0.5rem 0;
   }
 
   /* Loading */
@@ -182,7 +211,7 @@
     display: flex; align-items: center; gap: 0.75rem;
     font-family: 'Roboto Mono', monospace; font-size: 0.8rem; color: var(--gray-dark); padding: 2rem 0;
   }
-  .loading .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s infinite; }
+  .loading .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: pulse 1.2s infinite; }
   .loading .dot:nth-child(2) { animation-delay: 0.2s; }
   .loading .dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
@@ -192,17 +221,13 @@
     font-family: 'Roboto Mono', monospace; font-size: 0.9rem; color: var(--gray-dark);
     padding: 2rem 0; line-height: 1.6;
   }
-  .typing-loader .cursor {
-    display: inline-block; width: 2px; height: 1.1em; background: var(--accent);
-    margin-left: 2px; animation: blink 0.8s infinite; vertical-align: text-bottom;
-  }
 
   /* Toast notification */
   .toast {
     position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
     background: var(--black); color: var(--white); padding: 0.75rem 1.25rem;
     font-family: 'Roboto Mono', monospace; font-size: 0.75rem;
-    border-radius: 2px; z-index: 1000; display: none; text-align: center;
+    border-radius: 2rem; z-index: 1000; display: none; text-align: center;
     max-width: 380px; width: 90%;
   }
   .toast.show { display: block; animation: fadeIn 0.3s ease; }
@@ -210,7 +235,7 @@
     display: inline-block; margin-top: 0.5rem; padding: 0.3rem 0.75rem;
     border: 1px solid var(--white); color: var(--white); background: none;
     font-family: 'Roboto Mono', monospace; font-size: 0.7rem; cursor: pointer;
-    text-transform: uppercase; letter-spacing: 0.05em;
+    text-transform: uppercase; letter-spacing: 0.05em; border-radius: 1rem;
   }
   .toast-btn:hover { background: var(--white); color: var(--black); }
 
@@ -222,11 +247,10 @@
   }
   .nav-btn {
     font-family: 'Roboto Mono', monospace; font-size: 0.85rem; color: var(--gray-dark);
-    cursor: pointer; padding: 0.75rem 1.25rem; border: 1px solid var(--gray);
+    cursor: pointer; padding: 0.75rem 1.25rem; border: 1px dotted var(--gray);
     background: none; text-transform: uppercase; letter-spacing: 0.05em;
-    transition: all 0.15s; min-width: 100px; text-align: center;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
+    transition: all 0.15s; min-width: 100px; text-align: center; border-radius: 2rem;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
   .nav-btn:hover { border-color: var(--black); color: var(--black); }
   .nav-btn:active { background: var(--gray-light); }
@@ -237,24 +261,25 @@
     font-family: 'Roboto Mono', monospace; font-size: 0.7rem; color: var(--gray-dark);
     text-align: right; margin-top: 0.25rem;
   }
-  .char-counter.met { color: var(--accent); }
+  .char-counter.met { color: var(--blue); }
 
   /* Attitude cards */
   .attitude-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
   .attitude-card {
-    padding: 0.75rem; border: 2px solid var(--gray); text-align: center;
+    padding: 0.75rem; border: 1px solid var(--gray); border-radius: 1rem; text-align: center;
     font-family: 'Roboto Mono', monospace; font-size: 0.65rem; font-weight: 400;
     cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.04em;
     line-height: 1.3;
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
-  .attitude-card.selected { border-color: var(--accent); background: var(--accent); color: var(--white); }
+  .attitude-card.selected { border-color: var(--blue); background: var(--blue); color: var(--white); }
 
   /* Insight fields */
   .insight-group { margin-bottom: 1.25rem; }
   .insight-label {
     font-family: 'Roboto Mono', monospace; font-size: 0.7rem; font-weight: 500;
     text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem;
-    color: var(--accent);
+    color: var(--blue);
   }
   .insight-group textarea { min-height: 80px; }
 
@@ -283,7 +308,7 @@
   /* Print styles */
   @media print {
     body { background: #fff; display: block; min-height: auto; }
-    #app, .toast, #modal-overlay { display: none !important; }
+    #app, .toast, #modal-overlay, .bg-circles { display: none !important; }
     #pdf-template {
       display: block !important;
       width: 100%; padding: 0; margin: 0;
@@ -292,12 +317,12 @@
     }
     #pdf-template h2 {
       font-family: 'Roboto Mono', monospace; font-size: 14pt;
-      margin: 24px 0 8px; border-bottom: 2px solid #7877f6; padding-bottom: 4px;
+      margin: 24px 0 8px; border-bottom: 2px solid #0000FF; padding-bottom: 4px;
       page-break-after: avoid;
     }
     #pdf-template h3 {
       font-family: 'Roboto Mono', monospace; font-size: 12pt;
-      margin: 16px 0 6px; color: #7877f6;
+      margin: 16px 0 6px; color: #0000FF;
       page-break-after: avoid;
     }
     #pdf-template .pdf-header {
@@ -328,6 +353,13 @@
 </head>
 <body>
 
+<!-- Background gradient circles -->
+<div class="bg-circles prominent" id="bg-circles">
+  <div class="bg-circle bg-circle-1"></div>
+  <div class="bg-circle bg-circle-2"></div>
+  <div class="bg-circle bg-circle-3"></div>
+</div>
+
 <div id="app">
 
   <!-- Toast notification -->
@@ -339,11 +371,11 @@
   <!-- Screen 1: Welcome -->
   <div class="screen active" id="screen-welcome">
     <div class="spacer"></div>
-    <p class="subtitle">Alliander</p>
-    <h1 class="mb-2" id="welcome-title">Scenario Planning Tool</h1>
-    <p class="mb-4" id="welcome-subtitle">Explore possible energy futures through collaborative scenario building and backcasting.</p>
+    <p style="font-family:'Roboto Mono',monospace; font-weight:300; font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--gray-dark); text-align:center;" id="welcome-org">Centre for Quantum and Society</p>
+    <h1 style="font-family:'Roboto Mono',monospace; font-weight:700; font-size:2rem; text-transform:uppercase; text-align:center; letter-spacing:0.05em; margin:1rem 0;" id="welcome-title">Scenario Tool</h1>
+    <p style="text-align:center; color:var(--gray-dark);" class="mb-4" id="welcome-subtitle">Exploring the future of Disruptive Technologies</p>
     <div class="spacer"></div>
-    <button class="btn btn-primary" onclick="showScreen('setup')" id="btn-begin">Begin</button>
+    <button class="btn" onclick="showScreen('setup')" id="btn-begin">Begin</button>
   </div>
 
   <!-- Screen 2: Setup -->
@@ -354,8 +386,8 @@
       <div class="toggle-option" onclick="setLanguage('nl')" id="lang-nl">Nederlands</div>
     </div>
     <p class="subtitle" id="label-role">Your role</p>
-    <button class="btn btn-primary mb-2" onclick="startAsModerator()" id="btn-moderator">Start as Moderator</button>
-    <button class="btn" onclick="startAsViewer()" id="btn-viewer">Join as Viewer</button>
+    <button class="btn mb-2" onclick="startAsModerator()" id="btn-moderator">Start as Moderator</button>
+    <button class="btn btn-secondary" onclick="startAsViewer()" id="btn-viewer">Join as Viewer</button>
   </div>
 
   <!-- Screen 3: Session Code -->
@@ -364,13 +396,13 @@
       <p class="subtitle" id="label-session-code">Session Code</p>
       <div class="session-code-display" id="display-code"></div>
       <p class="mb-4" id="session-share-text">Share this code with your group so they can follow along.</p>
-      <button class="btn btn-primary" onclick="showScreen('cards')" id="btn-to-cards">Continue to Cards</button>
+      <button class="btn" onclick="showScreen('cards')" id="btn-to-cards">Continue to Cards</button>
     </div>
     <div id="session-viewer" style="display:none;">
       <p class="subtitle" id="label-enter-code">Enter Session Code</p>
-      <input type="text" id="input-code" maxlength="6" placeholder="ABC123" style="text-align:center; font-family:'Roboto Mono',monospace; font-size:1.5rem; letter-spacing:0.2em; text-transform:uppercase;" class="mb-3">
+      <input type="text" id="input-code" maxlength="6" placeholder="ABC123" style="text-align:center; font-family:'Roboto Mono',monospace; font-size:1.5rem; letter-spacing:0.2em; text-transform:uppercase; border-radius:1rem;" class="mb-3">
       <div class="error-message" id="join-error" style="display:none;"></div>
-      <button class="btn btn-primary" onclick="joinSession()" id="btn-join">Join</button>
+      <button class="btn" onclick="joinSession()" id="btn-join">Join</button>
     </div>
   </div>
 
@@ -378,30 +410,25 @@
   <div class="screen" id="screen-cards">
     <div id="cards-moderator">
       <h2 class="mb-3" id="cards-title">Shape Your Future</h2>
-      <div class="slider-group">
-        <p class="subtitle" id="label-resource">Resource Outlook</p>
-        <div class="slider-labels">
-          <span class="selected-label" id="label-abundance">Abundance</span>
-          <span id="label-scarce">Scarce</span>
-        </div>
-        <input type="range" min="0" max="1" value="0" step="1" id="slider-resource" oninput="updateSliderLabels()">
+
+      <p class="subtitle" id="label-resource">Resource Outlook</p>
+      <div class="chip-group">
+        <div class="chip selected" id="chip-abundance" onclick="selectChip('resource', 'abundance')"><span id="label-abundance">Abundance</span></div>
+        <div class="chip" id="chip-scarce" onclick="selectChip('resource', 'scarce')"><span id="label-scarce">Scarce</span></div>
       </div>
-      <div class="slider-group">
-        <p class="subtitle" id="label-stability">System Stability</p>
-        <div class="slider-labels">
-          <span class="selected-label" id="label-stable">Stable</span>
-          <span id="label-breaks">Breaks Down</span>
-        </div>
-        <input type="range" min="0" max="1" value="0" step="1" id="slider-stability" oninput="updateSliderLabels()">
+
+      <p class="subtitle" id="label-stability">System Stability</p>
+      <div class="chip-group">
+        <div class="chip selected" id="chip-stable" onclick="selectChip('stability', 'stable')"><span id="label-stable">Stable</span></div>
+        <div class="chip" id="chip-breaks" onclick="selectChip('stability', 'breaks_down')"><span id="label-breaks">Breaks Down</span></div>
       </div>
-      <div class="slider-group">
-        <p class="subtitle" id="label-values">Dominant Value</p>
-        <div class="slider-labels">
-          <span class="selected-label" id="label-collective">Collectivism</span>
-          <span id="label-individual">Individualism</span>
-        </div>
-        <input type="range" min="0" max="1" value="0" step="1" id="slider-values" oninput="updateSliderLabels()">
+
+      <p class="subtitle" id="label-values">Dominant Value</p>
+      <div class="chip-group">
+        <div class="chip selected" id="chip-collective" onclick="selectChip('values', 'collectivism')"><span id="label-collective">Collectivism</span></div>
+        <div class="chip" id="chip-individual" onclick="selectChip('values', 'individualism')"><span id="label-individual">Individualism</span></div>
       </div>
+
       <p class="subtitle mt-2" id="label-tech-select">Select 2 Technologies</p>
       <div class="tech-grid" id="tech-grid">
         <div class="tech-card" onclick="toggleTech(this, 'AGI')">AGI</div>
@@ -411,7 +438,7 @@
         <div class="tech-card" onclick="toggleTech(this, 'NeuroTech')">NeuroTech</div>
         <div class="tech-card" onclick="toggleTech(this, 'ClimateTech')">ClimateTech</div>
       </div>
-      <button class="btn btn-accent" onclick="generateScenario()" id="btn-generate" disabled>Generate Scenario</button>
+      <button class="btn" onclick="generateScenario()" id="btn-generate" disabled>Generate Scenario</button>
       <div id="cards-loading" style="display:none;">
         <div class="loading">
           <div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -443,7 +470,7 @@
     </div>
     <div class="facilitation mt-3" id="facilitation-distant" style="display:none;">Take 5 minutes to discuss: What surprised you about this future? What feels inevitable, and what feels like it could still go differently?</div>
     <div class="spacer"></div>
-    <button class="btn btn-primary mt-3" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">Continue to 2040</button>
+    <button class="btn mt-3" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">Continue to 2040</button>
     <div class="bottom-nav" id="nav-distant" style="display:none;">
       <button class="nav-btn hidden"></button>
       <button class="nav-btn" onclick="navigateTo('nsd')" id="nav-fwd-distant" style="display:none;"><span id="label-forth">Forth</span> &rarr;</button>
@@ -458,7 +485,7 @@
     <div class="scenario-text mb-2" id="text-nsd"></div>
     <div class="facilitation mt-3" id="facilitation-nsd" style="display:none;">Discuss: What would need to happen in the next 15 years for this stepping stone to become reality? What obstacles do you see?</div>
     <div class="spacer"></div>
-    <button class="btn btn-primary mt-3" onclick="continueToNear()" id="btn-to-near" style="display:none;">Continue to 2030</button>
+    <button class="btn mt-3" onclick="continueToNear()" id="btn-to-near" style="display:none;">Continue to 2030</button>
     <div class="bottom-nav">
       <button class="nav-btn" onclick="navigateTo('distant')">&larr; <span class="nav-back-label">Back</span></button>
       <button class="nav-btn" onclick="navigateTo('near')" id="nav-fwd-nsd" style="display:none;"><span class="nav-forth-label">Forth</span> &rarr;</button>
@@ -473,7 +500,7 @@
     <div class="scenario-text mb-2" id="text-near"></div>
     <div class="facilitation mt-3" id="facilitation-near" style="display:none;">Discuss: What in this near future do you recognize from your current work? What decisions being made today could set this path in motion?</div>
     <div class="spacer"></div>
-    <button class="btn btn-primary mt-3" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
+    <button class="btn mt-3" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
     <div class="bottom-nav">
       <button class="nav-btn" onclick="navigateTo('nsd')">&larr; <span class="nav-back-label">Back</span></button>
       <button class="nav-btn" onclick="navigateTo('intervention')" id="nav-fwd-near" style="display:none;"><span class="nav-forth-label">Forth</span> &rarr;</button>
@@ -492,7 +519,7 @@
       <textarea id="input-intervention-viewer" readonly placeholder="Waiting for moderator to type..." style="color:var(--gray-dark);"></textarea>
     </div>
     <div class="spacer"></div>
-    <button class="btn btn-accent mt-3" onclick="submitIntervention()" id="btn-submit-intervention" disabled>Explore Consequences</button>
+    <button class="btn mt-3" onclick="submitIntervention()" id="btn-submit-intervention" disabled>Explore Consequences</button>
     <div class="bottom-nav">
       <button class="nav-btn" onclick="navigateTo('near')">&larr; <span class="nav-back-label">Back</span></button>
       <button class="nav-btn" onclick="navigateTo('consequences')" id="nav-fwd-intervention" style="display:none;"><span class="nav-forth-label">Forth</span> &rarr;</button>
@@ -506,9 +533,9 @@
     <h2 class="mb-3" id="title-consequences">If You Intervene...</h2>
     <div class="scenario-text mb-2" id="text-consequences"></div>
     <div class="facilitation mt-3" id="facilitation-consequences" style="display:none;">Reflect: Did the consequences of your intervention surprise you? What trade-offs emerged that you didn't expect?</div>
-    <button class="btn mt-2" onclick="showOriginalScenario()" id="btn-view-original" style="display:none;">View Original 2050 Scenario</button>
+    <button class="btn btn-secondary mt-2" onclick="showOriginalScenario()" id="btn-view-original" style="display:none;">View Original 2050 Scenario</button>
     <div class="spacer"></div>
-    <button class="btn btn-primary mt-3" onclick="showScreen('team')" id="btn-to-team" style="display:none;">Continue</button>
+    <button class="btn mt-3" onclick="showScreen('team')" id="btn-to-team" style="display:none;">Continue</button>
     <div class="bottom-nav">
       <button class="nav-btn" onclick="navigateTo('intervention')">&larr; <span class="nav-back-label">Back</span></button>
       <button class="nav-btn hidden"></button>
@@ -530,7 +557,7 @@
       <div class="attitude-card" onclick="toggleAttitude(this, 'Accelerationist')">Accelerationist</div>
     </div>
     <div class="spacer"></div>
-    <button class="btn btn-primary" onclick="proceedToInsights()" id="btn-to-insights">Continue to Insights</button>
+    <button class="btn" onclick="proceedToInsights()" id="btn-to-insights">Continue to Insights</button>
   </div>
 
   <!-- Screen 11: Insights -->
@@ -543,7 +570,7 @@
       <textarea id="input-insight-general" placeholder="Any other reflections..."></textarea>
     </div>
     <div class="spacer"></div>
-    <button class="btn btn-primary mt-3" onclick="submitInsights()" id="btn-submit-insights">Finish</button>
+    <button class="btn mt-3" onclick="submitInsights()" id="btn-submit-insights">Finish</button>
   </div>
 
   <!-- Screen 12: Closing -->
@@ -552,8 +579,8 @@
     <h1 class="mb-2" id="title-closing">Thank You</h1>
     <p class="mb-4" id="text-closing">Your scenario exploration is complete.</p>
     <div id="summary-list" class="mb-4"></div>
-    <button class="btn btn-accent mb-2" onclick="exportPDF()" id="btn-export">Export PDF</button>
-    <button class="btn" onclick="endSession()" id="btn-end-session">End Session</button>
+    <button class="btn mb-2" onclick="exportPDF()" id="btn-export">Export PDF</button>
+    <button class="btn btn-secondary" onclick="endSession()" id="btn-end-session">End Session</button>
     <div class="spacer"></div>
   </div>
 
@@ -563,12 +590,12 @@
     <h1 class="mb-2" id="title-completed">Session Completed</h1>
     <p class="mb-4" id="text-completed">Thank you for participating and sharing your perspective on the future.</p>
     <div class="spacer"></div>
-    <button class="btn btn-primary" onclick="startOver()" id="btn-start-new">Start a New Session</button>
+    <button class="btn" onclick="startOver()" id="btn-start-new">Start a New Session</button>
   </div>
 
   <!-- Modal: Original Scenario -->
   <div id="modal-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:999; justify-content:center; align-items:center; padding:1rem;">
-    <div style="background:var(--white); max-width:430px; width:100%; max-height:80vh; overflow-y:auto; padding:2rem; position:relative;">
+    <div style="background:var(--white); max-width:430px; width:100%; max-height:80vh; overflow-y:auto; padding:2rem; position:relative; border-radius:1rem;">
       <button onclick="closeModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; cursor:pointer; font-family:'Roboto Mono',monospace;">&times;</button>
       <div class="timeframe mb-1">2045 — 2050</div>
       <h2 class="mb-2">The Distant Future</h2>
@@ -613,7 +640,7 @@ const SUPABASE_URL = 'https://sejvhzowjdtuvmrqrgkf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlanZoem93amR0dXZtcnFyZ2tmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzNzkyNDAsImV4cCI6MjA4NTk1NTI0MH0.ptPCW0i8OHkN847VwWYZGpWSKjtqUWuv_axw_yn9p6o';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const ATTITUDES = ['Existential Alarmist', 'Ethical Crusader', 'Governance Guardian', 'Pragmatic Builder', 'Techno-Utopian', 'Accelerationist'];
+const TECHS = ['AGI', 'Quantum', 'BioTech', 'Robotics', 'NeuroTech', 'ClimateTech'];
 
 let state = {
   language: 'en',
@@ -640,15 +667,16 @@ let state = {
 };
 
 let realtimeChannel = null;
-let moderatorScreen = null; // tracks the moderator's current screen for viewers
+let moderatorScreen = null;
 let toastTimer = null;
 let interventionSyncTimer = null;
 
 // ---------- i18n ----------
 const i18n = {
   en: {
-    'welcome-title': 'Scenario Planning Tool',
-    'welcome-subtitle': 'Explore possible energy futures through collaborative scenario building and backcasting.',
+    'welcome-org': 'Centre for Quantum and Society',
+    'welcome-title': 'SCENARIO TOOL',
+    'welcome-subtitle': 'Exploring the future of Disruptive Technologies',
     'btn-begin': 'Begin',
     'label-language': 'Language',
     'label-role': 'Your role',
@@ -721,8 +749,9 @@ const i18n = {
     'typing-revising': 'Refining the scenario...',
   },
   nl: {
-    'welcome-title': 'Scenarioplanning Tool',
-    'welcome-subtitle': 'Verken mogelijke energietoekomsten door middel van gezamenlijke scenariobouw en backcasting.',
+    'welcome-org': 'Centre for Quantum and Society',
+    'welcome-title': 'SCENARIO TOOL',
+    'welcome-subtitle': 'De toekomst van disruptieve technologieën verkennen',
     'btn-begin': 'Begin',
     'label-language': 'Taal',
     'label-role': 'Jouw rol',
@@ -805,24 +834,39 @@ function applyTranslations() {
       el.textContent = t(key);
     }
   }
-  // Update all nav back/forth labels
   document.querySelectorAll('.nav-back-label').forEach(el => el.textContent = t('nav-back'));
   document.querySelectorAll('.nav-forth-label').forEach(el => el.textContent = t('nav-forth'));
+}
+
+// ---------- MARKDOWN BOLD PARSING ----------
+function renderMarkdown(text) {
+  // Convert **bold** and *bold* markers to <strong> tags
+  let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
+  return html;
 }
 
 // ---------- CHOICE TAGS ----------
 function renderChoiceTags(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const tags = [
-    state.resource_outlook, state.system_stability, state.dominant_value,
-    state.technology_1, state.technology_2
-  ].filter(Boolean);
-  container.innerHTML = tags.map(t => `<span class="choice-tag">${t}</span>`).join('');
+  const statementTags = [state.resource_outlook, state.system_stability, state.dominant_value].filter(Boolean);
+  const techTags = [state.technology_1, state.technology_2].filter(Boolean);
+  container.innerHTML =
+    statementTags.map(t => `<span class="choice-tag tag-statement">${t}</span>`).join('') +
+    techTags.map(t => `<span class="choice-tag tag-tech">${t}</span>`).join('');
 }
 
 function renderAllTags() {
   ['tags-distant', 'tags-nsd', 'tags-near', 'tags-consequences'].forEach(id => renderChoiceTags(id));
+}
+
+// ---------- BACKGROUND CIRCLES INTENSITY ----------
+function setBgIntensity(prominent) {
+  const bg = document.getElementById('bg-circles');
+  if (prominent) bg.classList.add('prominent');
+  else bg.classList.remove('prominent');
 }
 
 // ---------- NAVIGATION ----------
@@ -831,24 +875,23 @@ function showScreen(name) {
   const screen = document.getElementById('screen-' + name);
   if (screen) screen.classList.add('active');
 
-  // Render choice tags on scenario screens
+  // Background intensity: prominent on welcome/closing/completed
+  setBgIntensity(['welcome', 'closing', 'completed'].includes(name));
+
   if (['distant', 'nsd', 'near', 'consequences'].includes(name)) renderChoiceTags('tags-' + name);
 
-  // Show/hide moderator-only buttons for viewers
   if (state.role === 'viewer') {
     const modButtons = ['btn-to-nsd', 'btn-to-near', 'btn-to-intervention', 'btn-to-team', 'btn-submit-intervention'];
     modButtons.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
-    // Show viewer intervention view
     if (name === 'intervention') {
       document.getElementById('intervention-moderator').style.display = 'none';
       document.getElementById('intervention-viewer').style.display = 'block';
     }
   }
 
-  // Update session status in Supabase if moderator
   if (state.role === 'moderator' && state.sessionId) {
     const statusMap = {
       'cards': 'card_selection', 'distant': 'distant_future', 'nsd': 'not_so_distant_future',
@@ -862,10 +905,10 @@ function showScreen(name) {
 }
 
 function navigateTo(screenName) {
-  // Navigate without updating DB status (for back/forth browsing)
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const screen = document.getElementById('screen-' + screenName);
   if (screen) screen.classList.add('active');
+  setBgIntensity(false);
   if (['distant', 'nsd', 'near', 'consequences'].includes(screenName)) renderChoiceTags('tags-' + screenName);
 }
 
@@ -876,18 +919,13 @@ function showToast(text, targetScreen) {
   moderatorScreen = targetScreen;
   toast.classList.add('show');
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    goToModeratorScreen();
-  }, 5000);
+  toastTimer = setTimeout(() => goToModeratorScreen(), 5000);
 }
 
 function goToModeratorScreen() {
-  const toast = document.getElementById('toast');
-  toast.classList.remove('show');
+  document.getElementById('toast').classList.remove('show');
   if (toastTimer) clearTimeout(toastTimer);
-  if (moderatorScreen) {
-    showScreen(moderatorScreen);
-  }
+  if (moderatorScreen) showScreen(moderatorScreen);
 }
 
 // ---------- LANGUAGE ----------
@@ -903,12 +941,9 @@ async function startAsModerator() {
   state.role = 'moderator';
   state.sessionCode = generateCode();
   const { data, error } = await sb.from('sessions').insert({
-    session_code: state.sessionCode,
-    language: state.language,
-    status: 'card_selection',
-    sector_name: 'Energy',
+    session_code: state.sessionCode, language: state.language,
+    status: 'card_selection', sector_name: 'Energy',
   }).select().single();
-
   if (error) { console.error('Failed to create session:', error); return; }
   state.sessionId = data.session_id;
   document.getElementById('display-code').textContent = state.sessionCode;
@@ -959,27 +994,27 @@ function loadSessionData(data) {
   state.insights_data = data.insights_data || {};
 
   if (state.distant_future) {
-    document.getElementById('text-distant').textContent = state.distant_future;
+    document.getElementById('text-distant').innerHTML = renderMarkdown(state.distant_future);
     showFacilitation('distant');
     document.getElementById('nav-distant').style.display = 'flex';
   }
   if (state.weak_signals) {
-    document.getElementById('text-weak-signals').textContent = state.weak_signals;
+    document.getElementById('text-weak-signals').innerHTML = renderMarkdown(state.weak_signals);
     document.getElementById('weak-signals-block').style.display = 'block';
   }
   if (state.not_so_distant_future) {
-    document.getElementById('text-nsd').textContent = state.not_so_distant_future;
+    document.getElementById('text-nsd').innerHTML = renderMarkdown(state.not_so_distant_future);
     showFacilitation('nsd');
     document.getElementById('nav-fwd-distant').style.display = '';
     document.getElementById('nav-fwd-nsd').style.display = '';
   }
   if (state.near_future) {
-    document.getElementById('text-near').textContent = state.near_future;
+    document.getElementById('text-near').innerHTML = renderMarkdown(state.near_future);
     showFacilitation('near');
     document.getElementById('nav-fwd-near').style.display = '';
   }
   if (state.consequences) {
-    document.getElementById('text-consequences').textContent = state.consequences;
+    document.getElementById('text-consequences').innerHTML = renderMarkdown(state.consequences);
     showFacilitation('consequences');
     document.getElementById('btn-view-original').style.display = 'block';
     document.getElementById('nav-fwd-intervention').style.display = '';
@@ -1018,28 +1053,19 @@ function subscribeToSession() {
       const oldStatus = state.status;
       state.status = data.status;
       loadSessionData(data);
-
-      // If moderator moved to a new screen, show toast instead of force-navigating
       if (state.role === 'viewer' && data.status !== oldStatus) {
         const screenMap = {
           'card_selection': 'cards', 'generating': 'cards', 'distant_future': 'distant',
           'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
           'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
         };
-        const targetScreen = screenMap[data.status] || 'cards';
-        showToast(t('toast-moderator-moved'), targetScreen);
+        showToast(t('toast-moderator-moved'), screenMap[data.status] || 'cards');
       }
-
-      // Update viewer intervention textarea in real-time
       if (state.role === 'viewer' && data.user_intervention) {
         const viewerTA = document.getElementById('input-intervention-viewer');
-        if (viewerTA) {
-          viewerTA.value = data.user_intervention;
-          viewerTA.style.color = 'var(--black)';
-        }
+        if (viewerTA) { viewerTA.value = data.user_intervention; viewerTA.style.color = 'var(--black)'; }
       }
-    })
-    .subscribe();
+    }).subscribe();
 }
 
 // ---------- SESSION CODE ----------
@@ -1050,20 +1076,21 @@ function generateCode() {
   return code;
 }
 
-// ---------- SLIDERS ----------
-function updateSliderLabels() {
-  const r = document.getElementById('slider-resource').value;
-  const s = document.getElementById('slider-stability').value;
-  const v = document.getElementById('slider-values').value;
-  document.getElementById('label-abundance').classList.toggle('selected-label', r === '0');
-  document.getElementById('label-scarce').classList.toggle('selected-label', r === '1');
-  document.getElementById('label-stable').classList.toggle('selected-label', s === '0');
-  document.getElementById('label-breaks').classList.toggle('selected-label', s === '1');
-  document.getElementById('label-collective').classList.toggle('selected-label', v === '0');
-  document.getElementById('label-individual').classList.toggle('selected-label', v === '1');
-  state.resource_outlook = r === '0' ? 'abundance' : 'scarce';
-  state.system_stability = s === '0' ? 'stable' : 'breaks_down';
-  state.dominant_value = v === '0' ? 'collectivism' : 'individualism';
+// ---------- CHIP SELECTION (replaces sliders) ----------
+function selectChip(group, value) {
+  if (group === 'resource') {
+    state.resource_outlook = value;
+    document.getElementById('chip-abundance').classList.toggle('selected', value === 'abundance');
+    document.getElementById('chip-scarce').classList.toggle('selected', value === 'scarce');
+  } else if (group === 'stability') {
+    state.system_stability = value;
+    document.getElementById('chip-stable').classList.toggle('selected', value === 'stable');
+    document.getElementById('chip-breaks').classList.toggle('selected', value === 'breaks_down');
+  } else if (group === 'values') {
+    state.dominant_value = value;
+    document.getElementById('chip-collective').classList.toggle('selected', value === 'collectivism');
+    document.getElementById('chip-individual').classList.toggle('selected', value === 'individualism');
+  }
 }
 
 // ---------- TECH SELECTION ----------
@@ -1087,24 +1114,16 @@ function toggleTech(el, name) {
 
 // ---------- ATTITUDES ----------
 function toggleAttitude(el, name) {
-  if (el.classList.contains('selected')) {
-    el.classList.remove('selected');
-    state.selectedAttitudes = state.selectedAttitudes.filter(a => a !== name);
-  } else {
-    el.classList.add('selected');
-    state.selectedAttitudes.push(name);
-  }
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) state.selectedAttitudes.push(name);
+  else state.selectedAttitudes = state.selectedAttitudes.filter(a => a !== name);
 }
 
 function proceedToInsights() {
-  // Save team name and attitudes
   state.team_name = document.getElementById('input-team-name').value.trim();
   sb.from('sessions').update({
-    team_name: state.team_name,
-    attitudes: state.selectedAttitudes.join(','),
+    team_name: state.team_name, attitudes: state.selectedAttitudes.join(','),
   }).eq('session_id', state.sessionId).then();
-
-  // Build insight fields based on selected attitudes
   const container = document.getElementById('insight-fields');
   container.innerHTML = '';
   state.selectedAttitudes.forEach(att => {
@@ -1113,7 +1132,6 @@ function proceedToInsights() {
     group.innerHTML = `<div class="insight-label">${att}</div><textarea id="input-insight-${att.replace(/\s+/g, '-').toLowerCase()}" placeholder="Insight from the ${att} perspective..."></textarea>`;
     container.appendChild(group);
   });
-
   showScreen('insights');
 }
 
@@ -1125,8 +1143,6 @@ function updateInterventionCounter() {
   counter.textContent = `${len} / 20 min`;
   counter.classList.toggle('met', len >= 20);
   document.getElementById('btn-submit-intervention').disabled = len < 20;
-
-  // Sync to Supabase for viewers (debounced)
   if (interventionSyncTimer) clearTimeout(interventionSyncTimer);
   interventionSyncTimer = setTimeout(() => {
     sb.from('sessions').update({ user_intervention: input.value }).eq('session_id', state.sessionId).then();
@@ -1145,28 +1161,20 @@ function deriveArchetype() {
 // ---------- API HELPERS ----------
 function buildSessionData(extra) {
   return {
-    archetype: state.archetype,
-    resource_outlook: state.resource_outlook,
-    system_stability: state.system_stability,
-    dominant_value: state.dominant_value,
-    technology_1: state.technology_1,
-    technology_2: state.technology_2,
-    sector_name: 'Energy',
-    language: state.language,
-    seed_output: state.seed_output,
-    distant_future: state.distant_future,
-    not_so_distant_future: state.not_so_distant_future,
-    near_future: state.near_future,
-    intervention_text: state.intervention_text,
-    ...extra,
+    archetype: state.archetype, resource_outlook: state.resource_outlook,
+    system_stability: state.system_stability, dominant_value: state.dominant_value,
+    technology_1: state.technology_1, technology_2: state.technology_2,
+    sector_name: 'Energy', language: state.language,
+    seed_output: state.seed_output, distant_future: state.distant_future,
+    not_so_distant_future: state.not_so_distant_future, near_future: state.near_future,
+    intervention_text: state.intervention_text, ...extra,
   };
 }
 
 async function silentAPICall(promptId, extraData) {
   const sessionData = buildSessionData(extraData);
   const response = await fetch('/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ promptId, sessionId: state.sessionId, sessionData }),
   });
   if (!response.ok) throw new Error('API error: ' + response.status);
@@ -1193,8 +1201,7 @@ async function streamFromAPI(promptId, targetElementId, sessionField, extraData)
   let accumulated = '';
   const sessionData = buildSessionData(extraData);
   const response = await fetch('/api/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ promptId, sessionId: state.sessionId, sessionData }),
   });
   if (!response.ok) {
@@ -1224,11 +1231,11 @@ async function streamFromAPI(promptId, targetElementId, sessionField, extraData)
         const parsed = JSON.parse(jsonStr);
         if (parsed.done) break;
         if (parsed.error) { targetEl.innerHTML = `<span class="error-message">${parsed.error}</span>`; return accumulated; }
-        if (parsed.text) { accumulated += parsed.text; targetEl.innerHTML = accumulated + '<span class="cursor"></span>'; scheduleUpdate(); }
+        if (parsed.text) { accumulated += parsed.text; targetEl.innerHTML = renderMarkdown(accumulated) + '<span class="cursor"></span>'; scheduleUpdate(); }
       } catch (e) {}
     }
   }
-  targetEl.textContent = accumulated;
+  targetEl.innerHTML = renderMarkdown(accumulated);
   if (updateTimer) clearTimeout(updateTimer);
   if (sessionField) await sb.from('sessions').update({ [sessionField]: accumulated }).eq('session_id', state.sessionId);
   return accumulated;
@@ -1242,26 +1249,17 @@ function startTypingLoader(elementId, text) {
   el.innerHTML = '<span class="cursor"></span>';
   if (typingInterval) clearInterval(typingInterval);
   typingInterval = setInterval(() => {
-    if (i < text.length) {
-      el.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>';
-      i++;
-    } else {
-      // Hold with blinking cursor
-    }
+    if (i < text.length) { el.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>'; i++; }
   }, 40);
 }
 
 function updateTypingLoader(elementId, text) {
-  // Restart typing with new message
   if (typingInterval) clearInterval(typingInterval);
   const el = document.getElementById(elementId);
   let i = 0;
   el.innerHTML = '<span class="cursor"></span>';
   typingInterval = setInterval(() => {
-    if (i < text.length) {
-      el.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>';
-      i++;
-    }
+    if (i < text.length) { el.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>'; i++; }
   }, 40);
 }
 
@@ -1285,26 +1283,22 @@ async function generateScenario() {
   document.getElementById('cards-loading').style.display = 'block';
 
   try {
-    // B1: Seed (silent)
     console.log('[Pipeline] Starting B1...');
     document.getElementById('loading-text').textContent = t('loading-text');
     state.seed_output = await silentAPICall('b1');
     console.log('[Pipeline] B1 complete');
     await sb.from('sessions').update({ b1_output: state.seed_output }).eq('session_id', state.sessionId);
 
-    // Switch to distant future screen with typing loader
     await sb.from('sessions').update({ status: 'distant_future' }).eq('session_id', state.sessionId);
     showScreen('distant');
     renderAllTags();
 
-    // B2: Distant future (SILENT - gated behind B3)
     console.log('[Pipeline] Starting B2 (silent)...');
     startTypingLoader('text-distant', t('typing-crafting'));
     state.distant_future = await silentAPICall('b2');
     console.log('[Pipeline] B2 complete');
     await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
 
-    // B3: Assessment (silent)
     console.log('[Pipeline] Starting B3...');
     updateTypingLoader('text-distant', t('typing-checking'));
     const assessment = await silentAPICall('b3');
@@ -1318,18 +1312,15 @@ async function generateScenario() {
       console.log('[Pipeline] B3_revision complete');
     }
 
-    // Display the approved scenario text
     stopTypingLoader('text-distant');
-    document.getElementById('text-distant').textContent = state.distant_future;
+    document.getElementById('text-distant').innerHTML = renderMarkdown(state.distant_future);
 
-    // B4: Weak signals (streamed, runs after B2/B3 are done)
     document.getElementById('weak-signals-block').style.display = 'block';
     document.getElementById('text-weak-signals').innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Scanning for present-day signals...</span></div>';
     console.log('[Pipeline] Starting B4...');
     state.weak_signals = await streamFromAPI('b4', 'text-weak-signals', 'b4_output');
     console.log('[Pipeline] B4 complete');
 
-    // Show continue button + facilitation prompt + bottom nav
     showFacilitation('distant');
     document.getElementById('btn-to-nsd').style.display = 'block';
     document.getElementById('nav-distant').style.display = 'flex';
@@ -1346,7 +1337,6 @@ async function continueToNotSoDistant() {
   state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
   showFacilitation('nsd');
   document.getElementById('btn-to-near').style.display = 'block';
-  // Enable forward nav
   document.getElementById('nav-fwd-distant').style.display = '';
   document.getElementById('nav-fwd-nsd').style.display = '';
 }
@@ -1356,11 +1346,9 @@ async function continueToNear() {
   await sb.from('sessions').update({ status: 'near_future' }).eq('session_id', state.sessionId);
   showScreen('near');
   state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
-  // B7: fire-and-forget
   silentAPICall('b7').catch(e => console.warn('B7 failed:', e));
   showFacilitation('near');
   document.getElementById('btn-to-intervention').style.display = 'block';
-  // Enable forward nav from nsd to near
   document.getElementById('nav-fwd-near').style.display = '';
 }
 
@@ -1374,13 +1362,11 @@ async function submitIntervention() {
   showFacilitation('consequences');
   document.getElementById('btn-view-original').style.display = 'block';
   document.getElementById('btn-to-team').style.display = 'block';
-  // Enable forward nav from near to intervention, intervention to consequences
   document.getElementById('nav-fwd-near').style.display = '';
   document.getElementById('nav-fwd-intervention').style.display = '';
 }
 
 async function submitInsights() {
-  // Collect all insights
   const insightsData = {};
   state.selectedAttitudes.forEach(att => {
     const id = 'input-insight-' + att.replace(/\s+/g, '-').toLowerCase();
@@ -1389,14 +1375,10 @@ async function submitInsights() {
   });
   const generalInsight = document.getElementById('input-insight-general').value.trim();
   if (generalInsight) insightsData['General'] = generalInsight;
-
   state.insights_data = insightsData;
   await sb.from('sessions').update({
-    insights_data: insightsData,
-    user_insights: JSON.stringify(insightsData),
-    status: 'closing',
+    insights_data: insightsData, user_insights: JSON.stringify(insightsData), status: 'closing',
   }).eq('session_id', state.sessionId);
-
   buildSummary();
   showScreen('closing');
 }
@@ -1413,50 +1395,35 @@ function buildSummary() {
 
 // ---------- PDF EXPORT ----------
 function exportPDF() {
-  // Fill PDF template
   document.getElementById('pdf-team').textContent = state.team_name || 'Unnamed Team';
   document.getElementById('pdf-date').textContent = new Date().toLocaleDateString();
   document.getElementById('pdf-code').textContent = state.sessionCode || '';
   document.getElementById('pdf-attitudes-line').textContent = state.selectedAttitudes.length
     ? 'Attitudes: ' + state.selectedAttitudes.join(', ') : '';
-
   const tags = [state.resource_outlook, state.system_stability, state.dominant_value, state.archetype, state.technology_1, state.technology_2].filter(Boolean);
   document.getElementById('pdf-tags').innerHTML = tags.map(t => `<span class="pdf-tag">${t}</span>`).join('');
-
   document.getElementById('pdf-distant').textContent = state.distant_future || '';
   document.getElementById('pdf-weak-signals').textContent = state.weak_signals || '';
   document.getElementById('pdf-nsd').textContent = state.not_so_distant_future || '';
   document.getElementById('pdf-near').textContent = state.near_future || '';
   document.getElementById('pdf-intervention').textContent = state.intervention_text || '';
   document.getElementById('pdf-consequences').textContent = state.consequences || '';
-
-  // Build insights text
   let insightsText = '';
-  for (const [key, val] of Object.entries(state.insights_data)) {
-    insightsText += `${key}:\n${val}\n\n`;
-  }
+  for (const [key, val] of Object.entries(state.insights_data)) { insightsText += `${key}:\n${val}\n\n`; }
   document.getElementById('pdf-insights').textContent = insightsText || 'No insights recorded.';
-
-  // Use browser print dialog (user can save as PDF)
   window.print();
 }
 
 // ---------- MODAL ----------
 function showOriginalScenario() {
   document.getElementById('modal-archetype').textContent = state.archetype || '';
-  document.getElementById('modal-distant-text').textContent = state.distant_future || '';
-  const overlay = document.getElementById('modal-overlay');
-  overlay.style.display = 'flex';
+  document.getElementById('modal-distant-text').innerHTML = renderMarkdown(state.distant_future || '');
+  document.getElementById('modal-overlay').style.display = 'flex';
 }
-
-function closeModal() {
-  document.getElementById('modal-overlay').style.display = 'none';
-}
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 
 // ---------- END SESSION ----------
-function endSession() {
-  showScreen('completed');
-}
+function endSession() { showScreen('completed'); }
 
 // ---------- FACILITATION HELPERS ----------
 function showFacilitation(screenName) {
@@ -1477,10 +1444,13 @@ function startOver() {
   };
   document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected', 'disabled'));
   document.querySelectorAll('.attitude-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('slider-resource').value = 0;
-  document.getElementById('slider-stability').value = 0;
-  document.getElementById('slider-values').value = 0;
-  updateSliderLabels();
+  // Reset chips
+  document.getElementById('chip-abundance').classList.add('selected');
+  document.getElementById('chip-scarce').classList.remove('selected');
+  document.getElementById('chip-stable').classList.add('selected');
+  document.getElementById('chip-breaks').classList.remove('selected');
+  document.getElementById('chip-collective').classList.add('selected');
+  document.getElementById('chip-individual').classList.remove('selected');
   document.getElementById('btn-generate').disabled = true;
   document.getElementById('btn-generate').style.display = 'block';
   document.getElementById('cards-loading').style.display = 'none';
@@ -1501,16 +1471,12 @@ function startOver() {
   document.getElementById('btn-to-intervention').style.display = 'none';
   document.getElementById('btn-to-team').style.display = 'none';
   document.getElementById('btn-view-original').style.display = 'none';
-  // Reset facilitation prompts
   ['facilitation-distant', 'facilitation-nsd', 'facilitation-near', 'facilitation-consequences'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
-  // Reset forward nav arrows + distant bottom nav
   document.getElementById('nav-distant').style.display = 'none';
   ['nav-fwd-distant', 'nav-fwd-nsd', 'nav-fwd-near', 'nav-fwd-intervention'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
   document.getElementById('cards-moderator').style.display = 'block';
   document.getElementById('cards-viewer').style.display = 'none';
@@ -1519,7 +1485,6 @@ function startOver() {
 }
 
 // ---------- INIT ----------
-updateSliderLabels();
 </script>
 </body>
 </html>
