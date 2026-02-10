@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
     --black: #000;
@@ -188,6 +187,16 @@
   .loading .dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
+  /* Typing loader */
+  .typing-loader {
+    font-family: 'Roboto Mono', monospace; font-size: 0.9rem; color: var(--gray-dark);
+    padding: 2rem 0; line-height: 1.6;
+  }
+  .typing-loader .cursor {
+    display: inline-block; width: 2px; height: 1.1em; background: var(--accent);
+    margin-left: 2px; animation: blink 0.8s infinite; vertical-align: text-bottom;
+  }
+
   /* Toast notification */
   .toast {
     position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
@@ -268,25 +277,53 @@
   .mt-1 { margin-top: 0.5rem; } .mt-2 { margin-top: 1rem; } .mt-3 { margin-top: 1.5rem; } .mt-4 { margin-top: 2rem; }
   .mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; } .mb-3 { margin-bottom: 1.5rem; } .mb-4 { margin-bottom: 2rem; }
 
-  /* Hidden PDF template */
-  #pdf-template {
-    display: none;
-    width: 700px; padding: 40px; background: #fff; color: #000;
-    font-family: 'Space Grotesk', sans-serif; font-size: 11px; line-height: 1.6;
+  /* PDF template - hidden on screen */
+  #pdf-template { display: none; }
+
+  /* Print styles */
+  @media print {
+    body { background: #fff; display: block; min-height: auto; }
+    #app, .toast, #modal-overlay { display: none !important; }
+    #pdf-template {
+      display: block !important;
+      width: 100%; padding: 0; margin: 0;
+      background: #fff; color: #000;
+      font-family: 'Space Grotesk', sans-serif; font-size: 11pt; line-height: 1.6;
+    }
+    #pdf-template h2 {
+      font-family: 'Roboto Mono', monospace; font-size: 14pt;
+      margin: 24px 0 8px; border-bottom: 2px solid #7877f6; padding-bottom: 4px;
+      page-break-after: avoid;
+    }
+    #pdf-template h3 {
+      font-family: 'Roboto Mono', monospace; font-size: 12pt;
+      margin: 16px 0 6px; color: #7877f6;
+      page-break-after: avoid;
+    }
+    #pdf-template .pdf-header {
+      text-align: center; margin-bottom: 30px;
+      border-bottom: 2px solid #000; padding-bottom: 15px;
+    }
+    #pdf-template .pdf-header h1 {
+      font-family: 'Roboto Mono', monospace; font-size: 20pt; margin-bottom: 8px;
+    }
+    #pdf-template .pdf-meta { font-size: 9pt; color: #888; }
+    #pdf-template .pdf-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
+    #pdf-template .pdf-tag {
+      font-family: 'Roboto Mono', monospace; font-size: 8pt;
+      padding: 2px 8px; border: 1px solid #ccc; text-transform: uppercase;
+    }
+    #pdf-template .pdf-section {
+      margin-bottom: 20px; white-space: pre-wrap;
+      page-break-inside: avoid;
+    }
+    #pdf-template .pdf-footer {
+      text-align: center; margin-top: 30px; padding-top: 15px;
+      border-top: 2px solid #000; font-size: 9pt; color: #888;
+      page-break-inside: avoid;
+    }
+    @page { margin: 15mm; }
   }
-  #pdf-template.rendering {
-    display: block; position: absolute; left: 0; top: 0; z-index: -1;
-    opacity: 0; pointer-events: none;
-  }
-  #pdf-template h2 { font-family: 'Roboto Mono', monospace; font-size: 14px; margin: 20px 0 8px; border-bottom: 2px solid #7877f6; padding-bottom: 4px; }
-  #pdf-template h3 { font-family: 'Roboto Mono', monospace; font-size: 12px; margin: 14px 0 6px; color: #7877f6; }
-  #pdf-template .pdf-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 15px; }
-  #pdf-template .pdf-header h1 { font-family: 'Roboto Mono', monospace; font-size: 20px; margin-bottom: 8px; }
-  #pdf-template .pdf-meta { font-size: 10px; color: #888; }
-  #pdf-template .pdf-tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
-  #pdf-template .pdf-tag { font-family: 'Roboto Mono', monospace; font-size: 9px; padding: 2px 8px; border: 1px solid #ccc; text-transform: uppercase; }
-  #pdf-template .pdf-section { margin-bottom: 20px; white-space: pre-wrap; }
-  #pdf-template .pdf-footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 2px solid #000; font-size: 10px; color: #888; }
 </style>
 </head>
 <body>
@@ -679,6 +716,9 @@ const i18n = {
     'toast-moderator-moved': 'Moderator moved to a new phase',
     'nav-back': 'Back',
     'nav-forth': 'Forth',
+    'typing-crafting': 'Crafting the distant future...',
+    'typing-checking': 'Checking scenario coherence...',
+    'typing-revising': 'Refining the scenario...',
   },
   nl: {
     'welcome-title': 'Scenarioplanning Tool',
@@ -750,6 +790,9 @@ const i18n = {
     'toast-moderator-moved': 'De moderator is naar een nieuwe fase gegaan',
     'nav-back': 'Terug',
     'nav-forth': 'Volgende',
+    'typing-crafting': 'De verre toekomst wordt gecreëerd...',
+    'typing-checking': 'Scenario coherentie wordt gecontroleerd...',
+    'typing-revising': 'Het scenario wordt verfijnd...',
   }
 };
 
@@ -1191,6 +1234,43 @@ async function streamFromAPI(promptId, targetElementId, sessionField, extraData)
   return accumulated;
 }
 
+// ---------- TYPING LOADER ----------
+let typingInterval = null;
+function startTypingLoader(elementId, text) {
+  const el = document.getElementById(elementId);
+  let i = 0;
+  el.innerHTML = '<span class="cursor"></span>';
+  if (typingInterval) clearInterval(typingInterval);
+  typingInterval = setInterval(() => {
+    if (i < text.length) {
+      el.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>';
+      i++;
+    } else {
+      // Hold with blinking cursor
+    }
+  }, 40);
+}
+
+function updateTypingLoader(elementId, text) {
+  // Restart typing with new message
+  if (typingInterval) clearInterval(typingInterval);
+  const el = document.getElementById(elementId);
+  let i = 0;
+  el.innerHTML = '<span class="cursor"></span>';
+  typingInterval = setInterval(() => {
+    if (i < text.length) {
+      el.innerHTML = text.substring(0, i + 1) + '<span class="cursor"></span>';
+      i++;
+    }
+  }, 40);
+}
+
+function stopTypingLoader(elementId) {
+  if (typingInterval) { clearInterval(typingInterval); typingInterval = null; }
+  const el = document.getElementById(elementId);
+  if (el) el.innerHTML = '';
+}
+
 // ---------- PIPELINE ----------
 async function generateScenario() {
   state.archetype = deriveArchetype();
@@ -1212,41 +1292,42 @@ async function generateScenario() {
     console.log('[Pipeline] B1 complete');
     await sb.from('sessions').update({ b1_output: state.seed_output }).eq('session_id', state.sessionId);
 
-    // Switch to distant future screen
+    // Switch to distant future screen with typing loader
     await sb.from('sessions').update({ status: 'distant_future' }).eq('session_id', state.sessionId);
     showScreen('distant');
     renderAllTags();
 
-    // B2: Distant future (streamed)
-    console.log('[Pipeline] Starting B2...');
-    state.distant_future = await streamFromAPI('b2', 'text-distant', 'b2_output');
+    // B2: Distant future (SILENT - gated behind B3)
+    console.log('[Pipeline] Starting B2 (silent)...');
+    startTypingLoader('text-distant', t('typing-crafting'));
+    state.distant_future = await silentAPICall('b2');
     console.log('[Pipeline] B2 complete');
+    await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
 
-    // B3 + B4 in parallel
-    // Show weak signals loading indicator immediately
+    // B3: Assessment (silent)
+    console.log('[Pipeline] Starting B3...');
+    updateTypingLoader('text-distant', t('typing-checking'));
+    const assessment = await silentAPICall('b3');
+    console.log('[Pipeline] B3 result:', assessment.substring(0, 80));
+
+    if (assessment.toUpperCase().includes('NEEDS REVISION')) {
+      console.log('[Pipeline] B3 NEEDS REVISION, running B3_revision...');
+      updateTypingLoader('text-distant', t('typing-revising'));
+      state.distant_future = await silentAPICall('b3_revision', { b3_fix_instructions: assessment });
+      await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
+      console.log('[Pipeline] B3_revision complete');
+    }
+
+    // Display the approved scenario text
+    stopTypingLoader('text-distant');
+    document.getElementById('text-distant').textContent = state.distant_future;
+
+    // B4: Weak signals (streamed, runs after B2/B3 are done)
     document.getElementById('weak-signals-block').style.display = 'block';
     document.getElementById('text-weak-signals').innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Scanning for present-day signals...</span></div>';
-
-    // Start B3 (silent) and B4 (streamed) in parallel
-    console.log('[Pipeline] Starting B3 + B4 in parallel...');
-    const b3Promise = (async () => {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        const assessment = await silentAPICall('b3');
-        console.log('[Pipeline] B3 attempt', attempt + 1, ':', assessment.substring(0, 80));
-        if (!assessment.toUpperCase().includes('NEEDS REVISION')) { console.log('[Pipeline] B3 PASSED'); return; }
-        console.log('[Pipeline] B3 NEEDS REVISION, running B3_revision...');
-        state.distant_future = await silentAPICall('b3_revision', { b3_fix_instructions: assessment });
-        await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
-        document.getElementById('text-distant').textContent = state.distant_future;
-      }
-    })();
-
-    const b4Promise = streamFromAPI('b4', 'text-weak-signals', 'b4_output');
-
-    // Wait for both to finish
-    const [, weakSignals] = await Promise.all([b3Promise, b4Promise]);
-    state.weak_signals = weakSignals;
-    console.log('[Pipeline] B3 + B4 complete');
+    console.log('[Pipeline] Starting B4...');
+    state.weak_signals = await streamFromAPI('b4', 'text-weak-signals', 'b4_output');
+    console.log('[Pipeline] B4 complete');
 
     // Show continue button + facilitation prompt + bottom nav
     showFacilitation('distant');
@@ -1254,6 +1335,7 @@ async function generateScenario() {
     document.getElementById('nav-distant').style.display = 'flex';
   } catch (error) {
     console.error('[Pipeline] Error:', error);
+    stopTypingLoader('text-distant');
   }
 }
 
@@ -1331,8 +1413,6 @@ function buildSummary() {
 
 // ---------- PDF EXPORT ----------
 function exportPDF() {
-  const tpl = document.getElementById('pdf-template');
-
   // Fill PDF template
   document.getElementById('pdf-team').textContent = state.team_name || 'Unnamed Team';
   document.getElementById('pdf-date').textContent = new Date().toLocaleDateString();
@@ -1357,29 +1437,8 @@ function exportPDF() {
   }
   document.getElementById('pdf-insights').textContent = insightsText || 'No insights recorded.';
 
-  // Make visible for capture
-  tpl.classList.add('rendering');
-  const filename = `scenario-${state.sessionCode || 'export'}-${state.team_name || 'team'}.pdf`.replace(/\s+/g, '-').toLowerCase();
-
-  html2pdf().set({
-    margin: 10,
-    filename: filename,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      scrollX: 0,
-      scrollY: 0,
-      onclone: function(clonedDoc) {
-        const el = clonedDoc.getElementById('pdf-template');
-        el.style.display = 'block';
-        el.style.position = 'static';
-        el.style.opacity = '1';
-      }
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-  }).from(tpl).save().then(() => {
-    tpl.classList.remove('rendering');
-  });
+  // Use browser print dialog (user can save as PDF)
+  window.print();
 }
 
 // ---------- MODAL ----------
