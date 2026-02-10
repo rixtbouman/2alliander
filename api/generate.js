@@ -38,23 +38,12 @@ async function fetchSectorAnalysis(techName) {
 async function fetchSectorProfile() {
   const { data, error } = await supabase
     .from("sector_profile")
-    .select("*")
+    .select("organization_name, organization_context")
     .single();
   if (error) return { profile: "", organization_name: "" };
 
-  // Assemble columns into a readable block for the prompt
-  const sections = [
-    data.organization_name && `Organization: ${data.organization_name}`,
-    data.organizational_context && `Organizational Context: ${data.organizational_context}`,
-    data.key_stakeholders && `Key Stakeholders: ${data.key_stakeholders}`,
-    data.current_dilemmas && `Current Dilemmas: ${data.current_dilemmas}`,
-    data.strategic_priorities && `Strategic Priorities: ${data.strategic_priorities}`,
-    data.macro_dimensions && `Macro Dimensions: ${data.macro_dimensions}`,
-    data.elsa_sensitivity && `ELSA Sensitivity: ${data.elsa_sensitivity}`,
-  ].filter(Boolean);
-
   return {
-    profile: sections.join("\n\n"),
+    profile: data.organization_context || "",
     organization_name: data.organization_name || "",
   };
 }
