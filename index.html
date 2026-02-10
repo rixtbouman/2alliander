@@ -270,9 +270,13 @@
 
   /* Hidden PDF template */
   #pdf-template {
-    position: fixed; left: -9999px; top: 0;
+    display: none;
     width: 700px; padding: 40px; background: #fff; color: #000;
     font-family: 'Space Grotesk', sans-serif; font-size: 11px; line-height: 1.6;
+  }
+  #pdf-template.rendering {
+    display: block; position: absolute; left: 0; top: 0; z-index: -1;
+    opacity: 0; pointer-events: none;
   }
   #pdf-template h2 { font-family: 'Roboto Mono', monospace; font-size: 14px; margin: 20px 0 8px; border-bottom: 2px solid #7877f6; padding-bottom: 4px; }
   #pdf-template h3 { font-family: 'Roboto Mono', monospace; font-size: 12px; margin: 14px 0 6px; color: #7877f6; }
@@ -1353,15 +1357,29 @@ function exportPDF() {
   }
   document.getElementById('pdf-insights').textContent = insightsText || 'No insights recorded.';
 
+  // Make visible for capture
+  tpl.classList.add('rendering');
   const filename = `scenario-${state.sessionCode || 'export'}-${state.team_name || 'team'}.pdf`.replace(/\s+/g, '-').toLowerCase();
 
   html2pdf().set({
     margin: 10,
     filename: filename,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, scrollX: 0, scrollY: 0 },
+    html2canvas: {
+      scale: 2,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: function(clonedDoc) {
+        const el = clonedDoc.getElementById('pdf-template');
+        el.style.display = 'block';
+        el.style.position = 'static';
+        el.style.opacity = '1';
+      }
+    },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-  }).from(tpl).save();
+  }).from(tpl).save().then(() => {
+    tpl.classList.remove('rendering');
+  });
 }
 
 // ---------- MODAL ----------
