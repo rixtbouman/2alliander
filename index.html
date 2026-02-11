@@ -170,7 +170,9 @@
   .choice-tag.tag-tech { background: var(--blue); color: var(--white); }
 
   /* Scenario text — justified */
-  .scenario-text { font-size: 1rem; line-height: 1.8; font-weight: 300; white-space: pre-wrap; text-align: justify; }
+  .scenario-text { font-size: 1rem; line-height: 1.8; font-weight: 300; text-align: justify; }
+  .scenario-text p { margin-bottom: 1em; }
+  .scenario-text p:last-child { margin-bottom: 0; }
   .scenario-text .cursor, .weak-signals-content .cursor {
     display: inline-block; width: 2px; height: 1.1em; background: var(--blue);
     margin-left: 2px; animation: blink 0.8s infinite; vertical-align: text-bottom;
@@ -197,7 +199,9 @@
     font-family: 'Roboto Mono', monospace; font-size: 0.7rem;
     text-transform: uppercase; letter-spacing: 0.15em; color: var(--blue); margin-bottom: 1rem;
   }
-  .weak-signals-content { font-size: 0.875rem; line-height: 1.7; font-weight: 300; white-space: pre-wrap; text-align: justify; }
+  .weak-signals-content { font-size: 0.875rem; line-height: 1.7; font-weight: 300; text-align: justify; }
+  .weak-signals-content p { margin-bottom: 0.75em; }
+  .weak-signals-content p:last-child { margin-bottom: 0; }
 
   /* Facilitation prompt */
   .facilitation {
@@ -279,8 +283,9 @@
   .insight-label {
     font-family: 'Roboto Mono', monospace; font-size: 0.7rem; font-weight: 500;
     text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem;
-    color: var(--blue);
+    color: #ff00ff;
   }
+  .insight-label.insight-general { color: var(--black); }
   .insight-group textarea { min-height: 80px; }
 
   /* Summary */
@@ -298,6 +303,13 @@
   .waiting-message h2 { color: var(--gray-dark); margin-bottom: 1rem; }
 
   .error-message { color: #c00; font-size: 0.85rem; padding: 0.5rem 0; }
+
+  /* Persistent session code header */
+  .session-header {
+    font-family: 'Roboto Mono', monospace; font-size: 0.65rem; font-weight: 400;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray-dark);
+    text-align: right; padding-bottom: 0.5rem; display: none;
+  }
 
   .mt-1 { margin-top: 0.5rem; } .mt-2 { margin-top: 1rem; } .mt-3 { margin-top: 1.5rem; } .mt-4 { margin-top: 2rem; }
   .mb-1 { margin-bottom: 0.5rem; } .mb-2 { margin-bottom: 1rem; } .mb-3 { margin-bottom: 1.5rem; } .mb-4 { margin-bottom: 2rem; }
@@ -362,6 +374,9 @@
 
 <div id="app">
 
+  <!-- Persistent session code -->
+  <div class="session-header" id="session-header">Session: <span id="session-header-code"></span></div>
+
   <!-- Toast notification -->
   <div class="toast" id="toast">
     <span id="toast-text"></span><br>
@@ -409,7 +424,8 @@
   <!-- Screen 4: Card Selection -->
   <div class="screen" id="screen-cards">
     <div id="cards-moderator">
-      <h2 class="mb-3" id="cards-title">Shape Your Future</h2>
+      <h2 class="mb-1" id="cards-title">Shape Your Future</h2>
+      <p class="subtitle mb-3" id="instruction-cards-moderator">Select the scenario parameters</p>
 
       <p class="subtitle" id="label-resource">Resource Outlook</p>
       <div class="chip-group">
@@ -452,7 +468,8 @@
           <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
         <h2 id="viewer-waiting-title">Waiting for Moderator</h2>
-        <p id="viewer-waiting-text">The moderator is selecting scenario parameters...</p>
+        <p class="subtitle" id="instruction-cards-viewer">Waiting for the moderator to select the scenario parameters</p>
+        <p id="viewer-waiting-text" class="mt-2"></p>
       </div>
     </div>
   </div>
@@ -509,8 +526,8 @@
 
   <!-- Screen 8: Intervention -->
   <div class="screen" id="screen-intervention">
-    <h2 class="mb-2" id="title-intervention">Intervention</h2>
-    <div class="facilitation mb-3" id="facilitation-intervention">As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.</div>
+    <h2 class="mb-1" id="title-intervention">Intervention</h2>
+    <p class="subtitle mb-3" id="instruction-intervention">As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.</p>
     <div id="intervention-moderator">
       <textarea id="input-intervention" placeholder="Describe your intervention..." oninput="updateInterventionCounter()"></textarea>
       <div class="char-counter" id="intervention-counter">0 / 20 min</div>
@@ -545,28 +562,37 @@
   <!-- Screen 10: Team & Attitudes -->
   <div class="screen" id="screen-team">
     <h2 class="mb-3" id="title-team">Your Team</h2>
-    <p class="subtitle" id="label-team-name">Team Name</p>
-    <input type="text" id="input-team-name" placeholder="Enter your team name..." class="mb-4">
-    <p class="subtitle" id="label-attitudes">Which attitudes are at your table?</p>
-    <div class="attitude-grid" id="attitude-grid">
-      <div class="attitude-card" onclick="toggleAttitude(this, 'Existential Alarmist')">Existential Alarmist</div>
-      <div class="attitude-card" onclick="toggleAttitude(this, 'Ethical Crusader')">Ethical Crusader</div>
-      <div class="attitude-card" onclick="toggleAttitude(this, 'Governance Guardian')">Governance Guardian</div>
-      <div class="attitude-card" onclick="toggleAttitude(this, 'Pragmatic Builder')">Pragmatic Builder</div>
-      <div class="attitude-card" onclick="toggleAttitude(this, 'Techno-Utopian')">Techno-Utopian</div>
-      <div class="attitude-card" onclick="toggleAttitude(this, 'Accelerationist')">Accelerationist</div>
+    <div id="team-moderator">
+      <p class="subtitle" id="label-team-name">Team Name</p>
+      <input type="text" id="input-team-name" placeholder="Enter your team name..." class="mb-4">
+      <p class="subtitle" id="label-attitudes">Which attitudes are at your table?</p>
+      <div class="attitude-grid" id="attitude-grid">
+        <div class="attitude-card" onclick="toggleAttitude(this, 'Existential Alarmist')">Existential Alarmist</div>
+        <div class="attitude-card" onclick="toggleAttitude(this, 'Ethical Crusader')">Ethical Crusader</div>
+        <div class="attitude-card" onclick="toggleAttitude(this, 'Governance Guardian')">Governance Guardian</div>
+        <div class="attitude-card" onclick="toggleAttitude(this, 'Pragmatic Builder')">Pragmatic Builder</div>
+        <div class="attitude-card" onclick="toggleAttitude(this, 'Techno-Utopian')">Techno-Utopian</div>
+        <div class="attitude-card" onclick="toggleAttitude(this, 'Accelerationist')">Accelerationist</div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" onclick="proceedToInsights()" id="btn-to-insights">Continue to Insights</button>
     </div>
-    <div class="spacer"></div>
-    <button class="btn" onclick="proceedToInsights()" id="btn-to-insights">Continue to Insights</button>
+    <div id="team-viewer" style="display:none;">
+      <p class="subtitle" id="label-team-name-viewer">Team Name</p>
+      <p class="mb-4" style="font-family:'Roboto Mono',monospace; font-size:1.25rem; font-weight:500;" id="viewer-team-name">—</p>
+      <p class="subtitle" id="label-attitudes-viewer">Attitudes</p>
+      <div class="chip-group" style="flex-wrap:wrap;" id="viewer-attitudes"></div>
+      <div class="spacer"></div>
+    </div>
   </div>
 
   <!-- Screen 11: Insights -->
   <div class="screen" id="screen-insights">
-    <h2 class="mb-2" id="title-insights">Insights</h2>
-    <p class="mb-3" id="text-insights-prompt">What insights emerged from each perspective?</p>
+    <h2 class="mb-1" id="title-insights">Insights</h2>
+    <p class="subtitle mb-3" id="instruction-insights">What insights emerged from each perspective and what general insights emerged?</p>
     <div id="insight-fields"></div>
     <div class="insight-group">
-      <div class="insight-label" id="label-general-insight">General Insights</div>
+      <div class="insight-label insight-general" id="label-general-insight">General Insights</div>
       <textarea id="input-insight-general" placeholder="Any other reflections..."></textarea>
     </div>
     <div class="spacer"></div>
@@ -720,10 +746,12 @@ const i18n = {
     'btn-to-team': 'Continue',
     'title-team': 'Your Team',
     'label-team-name': 'Team Name',
+    'label-team-name-viewer': 'Team Name',
     'label-attitudes': 'Which attitudes are at your table?',
+    'label-attitudes-viewer': 'Attitudes',
     'btn-to-insights': 'Continue to Insights',
     'title-insights': 'Insights',
-    'text-insights-prompt': 'What insights emerged from each perspective?',
+    'text-insights-prompt': 'What insights emerged from each perspective and what general insights emerged?',
     'label-general-insight': 'General Insights',
     'btn-submit-insights': 'Finish',
     'title-closing': 'Thank You',
@@ -737,18 +765,24 @@ const i18n = {
     'summary-archetype': 'Archetype',
     'summary-tech': 'Technologies',
     'summary-value': 'Dominant Value',
-    'facilitation-distant': 'Take 5 minutes to discuss: What surprised you about this future? What feels inevitable, and what feels like it could still go differently?',
-    'facilitation-nsd': 'Discuss: What would need to happen in the next 15 years for this stepping stone to become reality? What obstacles do you see?',
-    'facilitation-near': 'Discuss: What in this near future do you recognize from your current work? What decisions being made today could set this path in motion?',
+    'facilitation-distant': 'Take 5 minutes to discuss this future — from your role\'s perspective. What stands out to you? Where do you see opportunity, risk, injustice, or missing structure? Start with your strongest reaction.',
+    'facilitation-nsd': 'What would need to happen in the next 15 years for this to become reality? Each of you will see different enablers and obstacles — share what your lens highlights first, then react to each other.',
+    'facilitation-near': 'What in this near future do you recognize from your current work? From your role: what decisions being made today should we be paying more attention to?',
     'facilitation-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
-    'facilitation-consequences': 'Reflect: Did the consequences of your intervention surprise you? What trade-offs emerged that you didn\'t expect?',
+    'facilitation-consequences': 'Did the consequences surprise you? From your perspective — what trade-off here is acceptable, and what isn\'t? Where do you disagree with each other?',
+    'instruction-cards-moderator': 'Select the scenario parameters',
+    'instruction-cards-viewer': 'Waiting for the moderator to select the scenario parameters',
+    'instruction-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
+    'instruction-insights': 'What insights emerged from each perspective and what general insights emerged?',
     'ws-title': 'Weak Signals',
     'toast-moderator-moved': 'Moderator moved to a new phase',
     'nav-back': 'Back',
     'nav-forth': 'Forth',
+    'typing-seed': 'Generating scenario seed...',
     'typing-crafting': 'Crafting the distant future...',
     'typing-checking': 'Checking scenario coherence...',
     'typing-revising': 'Refining the scenario...',
+    'typing-signals': 'Scanning for present-day signals...',
   },
   nl: {
     'welcome-org': 'Centre for Quantum and Society',
@@ -795,10 +829,12 @@ const i18n = {
     'btn-to-team': 'Verder',
     'title-team': 'Jouw Team',
     'label-team-name': 'Teamnaam',
+    'label-team-name-viewer': 'Teamnaam',
     'label-attitudes': 'Welke attitudes zitten aan tafel?',
+    'label-attitudes-viewer': 'Attitudes',
     'btn-to-insights': 'Verder naar Inzichten',
     'title-insights': 'Inzichten',
-    'text-insights-prompt': 'Welke inzichten kwamen naar voren vanuit elk perspectief?',
+    'text-insights-prompt': 'Welke inzichten kwamen naar voren vanuit elk perspectief en welke algemene inzichten zijn er?',
     'label-general-insight': 'Algemene Inzichten',
     'btn-submit-insights': 'Afronden',
     'title-closing': 'Bedankt',
@@ -812,18 +848,24 @@ const i18n = {
     'summary-archetype': 'Archetype',
     'summary-tech': 'Technologieën',
     'summary-value': 'Dominante Waarde',
-    'facilitation-distant': 'Neem 5 minuten om te bespreken: Wat verraste jullie aan deze toekomst? Wat voelt onvermijdelijk en wat zou nog anders kunnen gaan?',
-    'facilitation-nsd': 'Bespreek: Wat zou er in de komende 15 jaar moeten gebeuren om dit tussenstation werkelijkheid te laten worden? Welke obstakels zien jullie?',
-    'facilitation-near': 'Bespreek: Wat herkennen jullie in deze nabije toekomst vanuit jullie huidige werk? Welke beslissingen die nu worden genomen kunnen dit pad in gang zetten?',
+    'facilitation-distant': 'Neem 5 minuten om deze toekomst te bespreken — vanuit jullie rol. Wat valt jullie op? Waar zien jullie kansen, risico\'s, onrecht of ontbrekende structuur? Begin met jullie sterkste reactie.',
+    'facilitation-nsd': 'Wat zou er in de komende 15 jaar moeten gebeuren om dit werkelijkheid te laten worden? Ieder van jullie ziet andere aanjagers en obstakels — deel eerst wat jullie lens belicht, en reageer daarna op elkaar.',
+    'facilitation-near': 'Wat herkennen jullie in deze nabije toekomst vanuit jullie huidige werk? Vanuit jullie rol: aan welke beslissingen die nu worden genomen zouden we meer aandacht moeten besteden?',
     'facilitation-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
-    'facilitation-consequences': 'Reflecteer: Verraste de gevolgen van jullie interventie jullie? Welke afwegingen kwamen naar voren die jullie niet hadden verwacht?',
+    'facilitation-consequences': 'Verrasten de gevolgen jullie? Vanuit jullie perspectief — welke afweging is hier acceptabel en welke niet? Waar zijn jullie het met elkaar oneens?',
+    'instruction-cards-moderator': 'Selecteer de scenarioparameters',
+    'instruction-cards-viewer': 'Wachten tot de moderator de scenarioparameters selecteert',
+    'instruction-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
+    'instruction-insights': 'Welke inzichten kwamen naar voren vanuit elk perspectief en welke algemene inzichten zijn er?',
     'ws-title': 'Zwakke Signalen',
     'toast-moderator-moved': 'De moderator is naar een nieuwe fase gegaan',
     'nav-back': 'Terug',
     'nav-forth': 'Volgende',
+    'typing-seed': 'Scenario wordt gegenereerd...',
     'typing-crafting': 'De verre toekomst wordt gecreëerd...',
     'typing-checking': 'Scenario coherentie wordt gecontroleerd...',
     'typing-revising': 'Het scenario wordt verfijnd...',
+    'typing-signals': 'Zwakke signalen worden opgespoord...',
   }
 };
 
@@ -842,10 +884,14 @@ function applyTranslations() {
 
 // ---------- MARKDOWN BOLD PARSING ----------
 function renderMarkdown(text) {
-  // Convert **bold** and *bold* markers to <strong> tags
+  // Escape HTML
   let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Convert **bold** and *bold* markers to <strong> tags
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
+  // Convert double newlines to paragraphs, single newlines to spaces
+  const paragraphs = html.split(/\n\s*\n/).map(p => p.replace(/\n/g, ' ').trim()).filter(p => p);
+  if (paragraphs.length > 1) html = paragraphs.map(p => '<p>' + p + '</p>').join('');
   return html;
 }
 
@@ -892,6 +938,14 @@ function showScreen(name) {
       document.getElementById('intervention-moderator').style.display = 'none';
       document.getElementById('intervention-viewer').style.display = 'block';
     }
+    if (name === 'team') {
+      document.getElementById('team-moderator').style.display = 'none';
+      document.getElementById('team-viewer').style.display = 'block';
+    }
+    if (name === 'insights') {
+      // Viewer sees read-only insights from moderator
+      document.getElementById('btn-submit-insights').style.display = 'none';
+    }
   }
 
   if (state.role === 'moderator' && state.sessionId) {
@@ -930,6 +984,18 @@ function goToModeratorScreen() {
   if (moderatorScreen) showScreen(moderatorScreen);
 }
 
+function showBriefToast(text) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  document.getElementById('toast-btn').style.display = 'none';
+  toast.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+    document.getElementById('toast-btn').style.display = '';
+  }, 3000);
+}
+
 // ---------- LANGUAGE ----------
 function setLanguage(lang) {
   state.language = lang;
@@ -949,6 +1015,8 @@ async function startAsModerator() {
   if (error) { console.error('Failed to create session:', error); return; }
   state.sessionId = data.session_id;
   document.getElementById('display-code').textContent = state.sessionCode;
+  document.getElementById('session-header-code').textContent = state.sessionCode;
+  document.getElementById('session-header').style.display = 'block';
   document.getElementById('session-moderator').style.display = 'block';
   document.getElementById('session-viewer').style.display = 'none';
   showScreen('session');
@@ -971,6 +1039,8 @@ async function joinSession() {
   state.sessionId = data.session_id;
   state.sessionCode = data.session_code;
   state.language = (data.language || 'en').toLowerCase();
+  document.getElementById('session-header-code').textContent = state.sessionCode;
+  document.getElementById('session-header').style.display = 'block';
   applyTranslations();
   loadSessionData(data);
   subscribeToSession();
@@ -978,6 +1048,12 @@ async function joinSession() {
 }
 
 function loadSessionData(data) {
+  const prevDistant = state.distant_future;
+  const prevWeakSignals = state.weak_signals;
+  const prevNSD = state.not_so_distant_future;
+  const prevNear = state.near_future;
+  const prevConsequences = state.consequences;
+
   state.archetype = data.archetype;
   state.resource_outlook = data.dimension_a_value;
   state.system_stability = data.dimension_b_value;
@@ -995,28 +1071,51 @@ function loadSessionData(data) {
   state.selectedAttitudes = data.attitudes ? data.attitudes.split(',') : [];
   state.insights_data = data.insights_data || {};
 
+  const isViewer = state.role === 'viewer';
+
   if (state.distant_future) {
-    document.getElementById('text-distant').innerHTML = renderMarkdown(state.distant_future);
+    if (isViewer && state.distant_future !== prevDistant && prevDistant === '') {
+      simulateStreaming('text-distant', state.distant_future);
+    } else {
+      document.getElementById('text-distant').innerHTML = renderMarkdown(state.distant_future);
+    }
     showFacilitation('distant');
     document.getElementById('nav-distant').style.display = 'flex';
   }
   if (state.weak_signals) {
-    document.getElementById('text-weak-signals').innerHTML = renderMarkdown(state.weak_signals);
-    document.getElementById('weak-signals-block').style.display = 'block';
+    if (isViewer && state.weak_signals !== prevWeakSignals && prevWeakSignals === '') {
+      document.getElementById('weak-signals-block').style.display = 'block';
+      simulateStreaming('text-weak-signals', state.weak_signals);
+    } else {
+      document.getElementById('text-weak-signals').innerHTML = renderMarkdown(state.weak_signals);
+      document.getElementById('weak-signals-block').style.display = 'block';
+    }
   }
   if (state.not_so_distant_future) {
-    document.getElementById('text-nsd').innerHTML = renderMarkdown(state.not_so_distant_future);
+    if (isViewer && state.not_so_distant_future !== prevNSD && prevNSD === '') {
+      simulateStreaming('text-nsd', state.not_so_distant_future);
+    } else {
+      document.getElementById('text-nsd').innerHTML = renderMarkdown(state.not_so_distant_future);
+    }
     showFacilitation('nsd');
     document.getElementById('nav-fwd-distant').style.display = '';
     document.getElementById('nav-fwd-nsd').style.display = '';
   }
   if (state.near_future) {
-    document.getElementById('text-near').innerHTML = renderMarkdown(state.near_future);
+    if (isViewer && state.near_future !== prevNear && prevNear === '') {
+      simulateStreaming('text-near', state.near_future);
+    } else {
+      document.getElementById('text-near').innerHTML = renderMarkdown(state.near_future);
+    }
     showFacilitation('near');
     document.getElementById('nav-fwd-near').style.display = '';
   }
   if (state.consequences) {
-    document.getElementById('text-consequences').innerHTML = renderMarkdown(state.consequences);
+    if (isViewer && state.consequences !== prevConsequences && prevConsequences === '') {
+      simulateStreaming('text-consequences', state.consequences);
+    } else {
+      document.getElementById('text-consequences').innerHTML = renderMarkdown(state.consequences);
+    }
     showFacilitation('consequences');
     document.getElementById('btn-view-original').style.display = 'block';
     document.getElementById('nav-fwd-intervention').style.display = '';
@@ -1026,21 +1125,58 @@ function loadSessionData(data) {
     document.getElementById('input-intervention-viewer').value = state.intervention_text;
     document.getElementById('input-intervention-viewer').style.color = 'var(--black)';
   }
+  // Update viewer team display
+  if (isViewer) {
+    document.getElementById('viewer-team-name').textContent = state.team_name || '—';
+    const attContainer = document.getElementById('viewer-attitudes');
+    if (attContainer && state.selectedAttitudes.length) {
+      attContainer.innerHTML = state.selectedAttitudes.map(a =>
+        `<span class="chip selected" style="flex:none; padding:0.5rem 1rem; cursor:default;">${a}</span>`
+      ).join('');
+    }
+    // Update viewer insight fields to match moderator's attitudes
+    if (state.insights_data && Object.keys(state.insights_data).length) {
+      updateViewerInsights();
+    }
+  }
   renderAllTags();
 }
 
 function navigateToStatus(status) {
   const screenMap = {
-    'card_selection': 'cards', 'generating': 'cards', 'distant_future': 'distant',
+    'card_selection': 'cards', 'generating': 'cards',
+    'generating_seed': 'cards', 'generating_scenario': 'cards',
+    'checking_coherence': 'cards', 'revising_scenario': 'cards',
+    'generating_signals': 'distant',
+    'distant_future': 'distant',
     'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
     'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
   };
   const screen = screenMap[status] || 'cards';
-  if (state.role === 'viewer' && screen === 'cards') {
+  if (state.role === 'viewer' && (screen === 'cards' || isGeneratingStatus(status))) {
     document.getElementById('cards-moderator').style.display = 'none';
     document.getElementById('cards-viewer').style.display = 'block';
+    updateViewerGenerationPhase(status);
   }
   showScreen(screen);
+}
+
+function isGeneratingStatus(status) {
+  return ['generating', 'generating_seed', 'generating_scenario', 'checking_coherence', 'revising_scenario', 'generating_signals'].includes(status);
+}
+
+function updateViewerGenerationPhase(status) {
+  const phaseMap = {
+    'generating_seed': 'typing-seed',
+    'generating_scenario': 'typing-crafting',
+    'checking_coherence': 'typing-checking',
+    'revising_scenario': 'typing-revising',
+    'generating_signals': 'typing-signals',
+  };
+  const textEl = document.getElementById('viewer-waiting-text');
+  if (phaseMap[status]) {
+    textEl.textContent = t(phaseMap[status]);
+  }
 }
 
 function subscribeToSession() {
@@ -1056,12 +1192,20 @@ function subscribeToSession() {
       state.status = data.status;
       loadSessionData(data);
       if (state.role === 'viewer' && data.status !== oldStatus) {
-        const screenMap = {
-          'card_selection': 'cards', 'generating': 'cards', 'distant_future': 'distant',
-          'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
-          'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
-        };
-        showToast(t('toast-moderator-moved'), screenMap[data.status] || 'cards');
+        if (isGeneratingStatus(data.status)) {
+          // Update generation phase indicator for viewer
+          updateViewerGenerationPhase(data.status);
+        } else {
+          // Auto-navigate viewer to the new screen immediately
+          const screenMap = {
+            'card_selection': 'cards', 'distant_future': 'distant',
+            'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
+            'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
+          };
+          const target = screenMap[data.status] || 'cards';
+          showScreen(target);
+          showBriefToast(t('toast-moderator-moved'));
+        }
       }
       if (state.role === 'viewer' && data.user_intervention) {
         const viewerTA = document.getElementById('input-intervention-viewer');
@@ -1135,6 +1279,24 @@ function proceedToInsights() {
     container.appendChild(group);
   });
   showScreen('insights');
+}
+
+function updateViewerInsights() {
+  const container = document.getElementById('insight-fields');
+  container.innerHTML = '';
+  for (const [att, value] of Object.entries(state.insights_data)) {
+    if (att === 'General') continue;
+    const group = document.createElement('div');
+    group.className = 'insight-group';
+    group.innerHTML = `<div class="insight-label">${att}</div><textarea readonly style="color:var(--black);">${value}</textarea>`;
+    container.appendChild(group);
+  }
+  const generalEl = document.getElementById('input-insight-general');
+  if (generalEl && state.insights_data['General']) {
+    generalEl.value = state.insights_data['General'];
+    generalEl.readOnly = true;
+    generalEl.style.color = 'var(--black)';
+  }
 }
 
 // ---------- INTERVENTION ----------
@@ -1243,6 +1405,30 @@ async function streamFromAPI(promptId, targetElementId, sessionField, extraData)
   return accumulated;
 }
 
+// ---------- SIMULATED STREAMING ----------
+let streamingTimer = null;
+function simulateStreaming(elementId, text, speed = 15) {
+  return new Promise((resolve) => {
+    const el = document.getElementById(elementId);
+    if (!el || !text) { if (el) el.innerHTML = renderMarkdown(text || ''); resolve(); return; }
+    if (streamingTimer) clearInterval(streamingTimer);
+    let i = 0;
+    const len = text.length;
+    el.innerHTML = '<span class="cursor"></span>';
+    streamingTimer = setInterval(() => {
+      // Stream in chunks of 2-4 chars for natural feel
+      const chunk = Math.min(len, i + 2 + Math.floor(Math.random() * 3));
+      i = chunk;
+      el.innerHTML = renderMarkdown(text.substring(0, i)) + (i < len ? '<span class="cursor"></span>' : '');
+      if (i >= len) { clearInterval(streamingTimer); streamingTimer = null; resolve(); }
+    }, speed);
+  });
+}
+
+function stopSimulatedStreaming() {
+  if (streamingTimer) { clearInterval(streamingTimer); streamingTimer = null; }
+}
+
 // ---------- TYPING LOADER ----------
 let typingInterval = null;
 function startTypingLoader(elementId, text) {
@@ -1287,11 +1473,12 @@ async function generateScenario() {
   try {
     console.log('[Pipeline] Starting B1...');
     document.getElementById('loading-text').textContent = t('loading-text');
+    await sb.from('sessions').update({ status: 'generating_seed' }).eq('session_id', state.sessionId);
     state.seed_output = await silentAPICall('b1');
     console.log('[Pipeline] B1 complete');
     await sb.from('sessions').update({ b1_output: state.seed_output }).eq('session_id', state.sessionId);
 
-    await sb.from('sessions').update({ status: 'distant_future' }).eq('session_id', state.sessionId);
+    await sb.from('sessions').update({ status: 'generating_scenario' }).eq('session_id', state.sessionId);
     showScreen('distant');
     renderAllTags();
 
@@ -1299,23 +1486,30 @@ async function generateScenario() {
     startTypingLoader('text-distant', t('typing-crafting'));
     state.distant_future = await silentAPICall('b2');
     console.log('[Pipeline] B2 complete');
+    // Don't save b2_output yet — wait for B3 QA to prevent viewer seeing unreviewed text
+
+    try {
+      console.log('[Pipeline] Starting B3...');
+      await sb.from('sessions').update({ status: 'checking_coherence' }).eq('session_id', state.sessionId);
+      updateTypingLoader('text-distant', t('typing-checking'));
+      const assessment = await silentAPICall('b3');
+      console.log('[Pipeline] B3 result:', assessment.substring(0, 80));
+
+      if (assessment.toUpperCase().includes('NEEDS REVISION')) {
+        console.log('[Pipeline] B3 NEEDS REVISION, running B3_revision...');
+        await sb.from('sessions').update({ status: 'revising_scenario' }).eq('session_id', state.sessionId);
+        updateTypingLoader('text-distant', t('typing-revising'));
+        state.distant_future = await silentAPICall('b3_revision', { b3_fix_instructions: assessment });
+        console.log('[Pipeline] B3_revision complete');
+      }
+    } catch (e) {
+      console.warn('[Pipeline] B3 QA failed, using original B2 output:', e);
+    }
+    // Save final reviewed output
     await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
 
-    console.log('[Pipeline] Starting B3...');
-    updateTypingLoader('text-distant', t('typing-checking'));
-    const assessment = await silentAPICall('b3');
-    console.log('[Pipeline] B3 result:', assessment.substring(0, 80));
-
-    if (assessment.toUpperCase().includes('NEEDS REVISION')) {
-      console.log('[Pipeline] B3 NEEDS REVISION, running B3_revision...');
-      updateTypingLoader('text-distant', t('typing-revising'));
-      state.distant_future = await silentAPICall('b3_revision', { b3_fix_instructions: assessment });
-      await sb.from('sessions').update({ b2_output: state.distant_future }).eq('session_id', state.sessionId);
-      console.log('[Pipeline] B3_revision complete');
-    }
-
     stopTypingLoader('text-distant');
-    document.getElementById('text-distant').innerHTML = renderMarkdown(state.distant_future);
+    await simulateStreaming('text-distant', state.distant_future);
 
     // Start B5 pre-generation in background (doesn't need B4)
     console.log('[Pipeline] Starting B5 in background...');
@@ -1337,12 +1531,14 @@ async function generateScenario() {
     }).catch(e => { console.error('[Pipeline] B5 background failed:', e); pregenB5 = null; });
 
     // B4 streams in parallel with background B5
+    await sb.from('sessions').update({ status: 'generating_signals' }).eq('session_id', state.sessionId);
     document.getElementById('weak-signals-block').style.display = 'block';
     document.getElementById('text-weak-signals').innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Scanning for present-day signals...</span></div>';
     console.log('[Pipeline] Starting B4...');
     state.weak_signals = await streamFromAPI('b4', 'text-weak-signals', 'b4_output');
     console.log('[Pipeline] B4 complete');
 
+    await sb.from('sessions').update({ status: 'distant_future' }).eq('session_id', state.sessionId);
     showFacilitation('distant');
     document.getElementById('btn-to-nsd').style.display = 'block';
     document.getElementById('nav-distant').style.display = 'flex';
@@ -1358,12 +1554,12 @@ async function continueToNotSoDistant() {
   showScreen('nsd');
   if (pregenB5) {
     // Wait for background B5 to finish if still running
-    const textEl = document.getElementById('text-nsd');
     if (!state.not_so_distant_future) {
-      textEl.innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Finalizing 2040 scenario...</span></div>';
+      startTypingLoader('text-nsd', t('typing-crafting'));
       await pregenB5;
+      stopTypingLoader('text-nsd');
     }
-    textEl.innerHTML = renderMarkdown(state.not_so_distant_future);
+    await simulateStreaming('text-nsd', state.not_so_distant_future);
   } else {
     // Fallback: generate normally if background failed
     state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
@@ -1380,12 +1576,12 @@ async function continueToNear() {
   showScreen('near');
   if (pregenB6) {
     // Wait for background B6 to finish if still running
-    const textEl = document.getElementById('text-near');
     if (!state.near_future) {
-      textEl.innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Finalizing 2030 scenario...</span></div>';
+      startTypingLoader('text-near', t('typing-crafting'));
       await pregenB6;
+      stopTypingLoader('text-near');
     }
-    textEl.innerHTML = renderMarkdown(state.near_future);
+    await simulateStreaming('text-near', state.near_future);
   } else {
     // Fallback: generate normally if background failed
     state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
@@ -1479,6 +1675,7 @@ function showFacilitation(screenName) {
 function startOver() {
   if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
   pregenB5 = null; pregenB6 = null;
+  document.getElementById('session-header').style.display = 'none';
   state = {
     language: state.language, role: null, sessionId: null, sessionCode: null,
     archetype: null, resource_outlook: 'abundance', system_stability: 'stable',
@@ -1525,6 +1722,9 @@ function startOver() {
   });
   document.getElementById('cards-moderator').style.display = 'block';
   document.getElementById('cards-viewer').style.display = 'none';
+  document.getElementById('team-moderator').style.display = 'block';
+  document.getElementById('team-viewer').style.display = 'none';
+  document.getElementById('btn-submit-insights').style.display = '';
   document.getElementById('summary-list').innerHTML = '';
   showScreen('welcome');
 }
