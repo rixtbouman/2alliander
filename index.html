@@ -485,9 +485,9 @@
       <div class="weak-signals-title" id="ws-title">Weak Signals</div>
       <div class="weak-signals-content" id="text-weak-signals"></div>
     </div>
-    <div class="facilitation mt-3" id="facilitation-distant" style="display:none;">Take 5 minutes to discuss: What surprised you about this future? What feels inevitable, and what feels like it could still go differently?</div>
+    <div class="facilitation mt-3" id="facilitation-distant" style="display:none;">Take 5-10 minutes to discuss this future from the perspectives you have adopted. What stands out to you?</div>
     <div class="spacer"></div>
-    <button class="btn mt-3" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">Continue to 2040</button>
+    <button class="btn mt-3" onclick="continueToNotSoDistant()" id="btn-to-nsd" style="display:none;">View the world in 2040</button>
     <div class="bottom-nav" id="nav-distant" style="display:none;">
       <button class="nav-btn hidden"></button>
       <button class="nav-btn" onclick="navigateTo('nsd')" id="nav-fwd-distant" style="display:none;"><span id="label-forth">Forth</span> &rarr;</button>
@@ -500,9 +500,9 @@
     <div class="timeframe" id="tf-nsd">2035 — 2040</div>
     <h2 class="mb-3" id="title-nsd">The Not So Distant Future</h2>
     <div class="scenario-text mb-2" id="text-nsd"></div>
-    <div class="facilitation mt-3" id="facilitation-nsd" style="display:none;">Discuss: What would need to happen in the next 15 years for this stepping stone to become reality? What obstacles do you see?</div>
+    <div class="facilitation mt-3" id="facilitation-nsd" style="display:none;">Discuss: How does this future come about? What are the drivers today, and what stands in the way?</div>
     <div class="spacer"></div>
-    <button class="btn mt-3" onclick="continueToNear()" id="btn-to-near" style="display:none;">Continue to 2030</button>
+    <button class="btn mt-3" onclick="continueToNear()" id="btn-to-near" style="display:none;">View the world in 2030</button>
     <div class="bottom-nav">
       <button class="nav-btn" onclick="navigateTo('distant')">&larr; <span class="nav-back-label">Back</span></button>
       <button class="nav-btn" onclick="navigateTo('near')" id="nav-fwd-nsd" style="display:none;"><span class="nav-forth-label">Forth</span> &rarr;</button>
@@ -515,7 +515,7 @@
     <div class="timeframe" id="tf-near">2027 — 2030</div>
     <h2 class="mb-3" id="title-near">The Near Future</h2>
     <div class="scenario-text mb-2" id="text-near"></div>
-    <div class="facilitation mt-3" id="facilitation-near" style="display:none;">Discuss: What in this near future do you recognize from your current work? What decisions being made today could set this path in motion?</div>
+    <div class="facilitation mt-3" id="facilitation-near" style="display:none;">What in this near future do you recognize from your current work? From your role: what decisions being made today should we be paying more attention to?</div>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
     <div class="bottom-nav">
@@ -549,7 +549,7 @@
     <div class="timeframe" id="tf-consequences">Altered Future</div>
     <h2 class="mb-3" id="title-consequences">If You Intervene...</h2>
     <div class="scenario-text mb-2" id="text-consequences"></div>
-    <div class="facilitation mt-3" id="facilitation-consequences" style="display:none;">Reflect: Did the consequences of your intervention surprise you? What trade-offs emerged that you didn't expect?</div>
+    <div class="facilitation mt-3" id="facilitation-consequences" style="display:none;">Did the consequences surprise you? From your perspective — what trade-off here is acceptable, and what isn't? Where do you disagree with each other?</div>
     <button class="btn btn-secondary mt-2" onclick="showOriginalScenario()" id="btn-view-original" style="display:none;">View Original 2050 Scenario</button>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="showScreen('team')" id="btn-to-team" style="display:none;">Continue</button>
@@ -565,7 +565,7 @@
     <div id="team-moderator">
       <p class="subtitle" id="label-team-name">Team Name</p>
       <input type="text" id="input-team-name" placeholder="Enter your team name..." class="mb-4">
-      <p class="subtitle" id="label-attitudes">Which attitudes are at your table?</p>
+      <p class="subtitle" id="label-attitudes">Which perspectives are at your table?</p>
       <div class="attitude-grid" id="attitude-grid">
         <div class="attitude-card" onclick="toggleAttitude(this, 'Existential Alarmist')">Existential Alarmist</div>
         <div class="attitude-card" onclick="toggleAttitude(this, 'Ethical Crusader')">Ethical Crusader</div>
