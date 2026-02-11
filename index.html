@@ -272,7 +272,7 @@
     line-height: 1.3;
     -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
-  .attitude-card.selected { border-color: var(--blue); background: var(--blue); color: var(--white); }
+  .attitude-card.selected { border-color: #ff00ff; background: #ff00ff; color: var(--white); }
 
   /* Insight fields */
   .insight-group { margin-bottom: 1.25rem; }
@@ -670,6 +670,8 @@ let realtimeChannel = null;
 let moderatorScreen = null;
 let toastTimer = null;
 let interventionSyncTimer = null;
+let pregenB5 = null; // Promise for background B5
+let pregenB6 = null; // Promise for background B6
 
 // ---------- i18n ----------
 const i18n = {
@@ -1315,6 +1317,26 @@ async function generateScenario() {
     stopTypingLoader('text-distant');
     document.getElementById('text-distant').innerHTML = renderMarkdown(state.distant_future);
 
+    // Start B5 pre-generation in background (doesn't need B4)
+    console.log('[Pipeline] Starting B5 in background...');
+    pregenB5 = silentAPICall('b5').then(async (result) => {
+      state.not_so_distant_future = result;
+      console.log('[Pipeline] B5 background complete');
+      await sb.from('sessions').update({ b5_output: result }).eq('session_id', state.sessionId);
+      // Chain B6 in background
+      console.log('[Pipeline] Starting B6 in background...');
+      pregenB6 = silentAPICall('b6').then(async (result6) => {
+        state.near_future = result6;
+        console.log('[Pipeline] B6 background complete');
+        await sb.from('sessions').update({ b6_output: result6 }).eq('session_id', state.sessionId);
+        // Chain B7 in background
+        console.log('[Pipeline] Starting B7 in background...');
+        silentAPICall('b7').catch(e => console.warn('B7 background failed:', e));
+      });
+      return result;
+    }).catch(e => { console.error('[Pipeline] B5 background failed:', e); pregenB5 = null; });
+
+    // B4 streams in parallel with background B5
     document.getElementById('weak-signals-block').style.display = 'block';
     document.getElementById('text-weak-signals').innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Scanning for present-day signals...</span></div>';
     console.log('[Pipeline] Starting B4...');
@@ -1334,7 +1356,18 @@ async function continueToNotSoDistant() {
   document.getElementById('btn-to-nsd').style.display = 'none';
   await sb.from('sessions').update({ status: 'not_so_distant_future' }).eq('session_id', state.sessionId);
   showScreen('nsd');
-  state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
+  if (pregenB5) {
+    // Wait for background B5 to finish if still running
+    const textEl = document.getElementById('text-nsd');
+    if (!state.not_so_distant_future) {
+      textEl.innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Finalizing 2040 scenario...</span></div>';
+      await pregenB5;
+    }
+    textEl.innerHTML = renderMarkdown(state.not_so_distant_future);
+  } else {
+    // Fallback: generate normally if background failed
+    state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
+  }
   showFacilitation('nsd');
   document.getElementById('btn-to-near').style.display = 'block';
   document.getElementById('nav-fwd-distant').style.display = '';
@@ -1345,8 +1378,19 @@ async function continueToNear() {
   document.getElementById('btn-to-near').style.display = 'none';
   await sb.from('sessions').update({ status: 'near_future' }).eq('session_id', state.sessionId);
   showScreen('near');
-  state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
-  silentAPICall('b7').catch(e => console.warn('B7 failed:', e));
+  if (pregenB6) {
+    // Wait for background B6 to finish if still running
+    const textEl = document.getElementById('text-near');
+    if (!state.near_future) {
+      textEl.innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Finalizing 2030 scenario...</span></div>';
+      await pregenB6;
+    }
+    textEl.innerHTML = renderMarkdown(state.near_future);
+  } else {
+    // Fallback: generate normally if background failed
+    state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
+    silentAPICall('b7').catch(e => console.warn('B7 failed:', e));
+  }
   showFacilitation('near');
   document.getElementById('btn-to-intervention').style.display = 'block';
   document.getElementById('nav-fwd-near').style.display = '';
@@ -1434,6 +1478,7 @@ function showFacilitation(screenName) {
 // ---------- RESET ----------
 function startOver() {
   if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
+  pregenB5 = null; pregenB6 = null;
   state = {
     language: state.language, role: null, sessionId: null, sessionCode: null,
     archetype: null, resource_outlook: 'abundance', system_stability: 'stable',
