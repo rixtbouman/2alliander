@@ -110,7 +110,7 @@
   .btn + .btn { margin-top: 0.75rem; }
 
   .subtitle {
-    color: var(--gray-dark); font-size: 0.8rem;
+    color: var(--black); font-size: 0.8rem;
     font-family: 'Roboto Mono', monospace;
     text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;
   }
@@ -207,7 +207,7 @@
   .facilitation {
     margin-top: 1.5rem; padding: 1rem; border-left: 3px solid var(--blue);
     background: var(--gray-light); font-size: 0.85rem; line-height: 1.6;
-    color: var(--gray-dark); font-style: italic; border-radius: 0 0.5rem 0.5rem 0;
+    color: var(--black); font-style: italic; border-radius: 0 0.5rem 0.5rem 0;
   }
 
   /* Loading */
@@ -559,7 +559,7 @@
     </div>
   </div>
 
-  <!-- Screen 10: Team & Attitudes -->
+  <!-- Screen 10: Team & Perspectives -->
   <div class="screen" id="screen-team">
     <h2 class="mb-3" id="title-team">Your Team</h2>
     <div id="team-moderator">
@@ -732,10 +732,10 @@ const i18n = {
     'viewer-waiting-text': 'The moderator is selecting scenario parameters...',
     'tf-distant': '2045 — 2050',
     'title-distant': 'The Distant Future',
-    'btn-to-nsd': 'Continue to 2040',
+    'btn-to-nsd': 'View the world in 2040',
     'tf-nsd': '2035 — 2040',
     'title-nsd': 'The Not So Distant Future',
-    'btn-to-near': 'Continue to 2030',
+    'btn-to-near': 'View the world in 2030',
     'tf-near': '2027 — 2030',
     'title-near': 'The Near Future',
     'btn-to-intervention': 'What if we intervene?',
@@ -747,8 +747,8 @@ const i18n = {
     'title-team': 'Your Team',
     'label-team-name': 'Team Name',
     'label-team-name-viewer': 'Team Name',
-    'label-attitudes': 'Which attitudes are at your table?',
-    'label-attitudes-viewer': 'Attitudes',
+    'label-attitudes': 'Which perspectives are at your table?',
+    'label-attitudes-viewer': 'Perspectives',
     'btn-to-insights': 'Continue to Insights',
     'title-insights': 'Insights',
     'text-insights-prompt': 'What insights emerged from each perspective and what general insights emerged?',
@@ -765,8 +765,8 @@ const i18n = {
     'summary-archetype': 'Archetype',
     'summary-tech': 'Technologies',
     'summary-value': 'Dominant Value',
-    'facilitation-distant': 'Take 5 minutes to discuss this future — from your role\'s perspective. What stands out to you? Where do you see opportunity, risk, injustice, or missing structure?',
-    'facilitation-nsd': 'What would need to happen in the next 15 years for this to become reality? Each of you will see different enablers and obstacles — share what your lens highlights first, then react to each other.',
+    'facilitation-distant': 'Take 5-10 minutes to discuss this future from the perspectives you have adopted. What stands out to you?',
+    'facilitation-nsd': 'Discuss: How does this future come about? What are the drivers today, and what stands in the way?',
     'facilitation-near': 'What in this near future do you recognize from your current work? From your role: what decisions being made today should we be paying more attention to?',
     'facilitation-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
     'facilitation-consequences': 'Did the consequences surprise you? From your perspective — what trade-off here is acceptable, and what isn\'t? Where do you disagree with each other?',
@@ -815,10 +815,10 @@ const i18n = {
     'viewer-waiting-text': 'De moderator selecteert scenarioparameters...',
     'tf-distant': '2045 — 2050',
     'title-distant': 'De Verre Toekomst',
-    'btn-to-nsd': 'Verder naar 2040',
+    'btn-to-nsd': 'Bekijk de wereld in 2040',
     'tf-nsd': '2035 — 2040',
     'title-nsd': 'De Niet Zo Verre Toekomst',
-    'btn-to-near': 'Verder naar 2030',
+    'btn-to-near': 'Bekijk de wereld in 2030',
     'tf-near': '2027 — 2030',
     'title-near': 'De Nabije Toekomst',
     'btn-to-intervention': 'Wat als we ingrijpen?',
@@ -830,8 +830,8 @@ const i18n = {
     'title-team': 'Jouw Team',
     'label-team-name': 'Teamnaam',
     'label-team-name-viewer': 'Teamnaam',
-    'label-attitudes': 'Welke attitudes zitten aan tafel?',
-    'label-attitudes-viewer': 'Attitudes',
+    'label-attitudes': 'Welke perspectieven zitten aan tafel?',
+    'label-attitudes-viewer': 'Perspectieven',
     'btn-to-insights': 'Verder naar Inzichten',
     'title-insights': 'Inzichten',
     'text-insights-prompt': 'Welke inzichten kwamen naar voren vanuit elk perspectief en welke algemene inzichten zijn er?',
@@ -848,8 +848,8 @@ const i18n = {
     'summary-archetype': 'Archetype',
     'summary-tech': 'Technologieën',
     'summary-value': 'Dominante Waarde',
-    'facilitation-distant': 'Neem 5 minuten om deze toekomst te bespreken — vanuit jullie rol. Wat valt jullie op? Waar zien jullie kansen, risico\'s, onrecht of ontbrekende structuur?',
-    'facilitation-nsd': 'Wat zou er in de komende 15 jaar moeten gebeuren om dit werkelijkheid te laten worden? Ieder van jullie ziet andere aanjagers en obstakels — deel eerst wat jullie lens belicht, en reageer daarna op elkaar.',
+    'facilitation-distant': 'Neem 5-10 minuten om deze toekomst te bespreken vanuit de perspectieven die jullie hebben aangenomen. Wat valt jullie op?',
+    'facilitation-nsd': 'Hoe komt deze toekomst tot stand? Wat zijn de drivers vandaag de dag, en wat staat er in de weg?',
     'facilitation-near': 'Wat herkennen jullie in deze nabije toekomst vanuit jullie huidige werk? Vanuit jullie rol: aan welke beslissingen die nu worden genomen zouden we meer aandacht moeten besteden?',
     'facilitation-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
     'facilitation-consequences': 'Verrasten de gevolgen jullie? Vanuit jullie perspectief — welke afweging is hier acceptabel en welke niet? Waar zijn jullie het met elkaar oneens?',
@@ -1639,7 +1639,7 @@ function exportPDF() {
   document.getElementById('pdf-date').textContent = new Date().toLocaleDateString();
   document.getElementById('pdf-code').textContent = state.sessionCode || '';
   document.getElementById('pdf-attitudes-line').textContent = state.selectedAttitudes.length
-    ? 'Attitudes: ' + state.selectedAttitudes.join(', ') : '';
+    ? 'Perspectives: ' + state.selectedAttitudes.join(', ') : '';
   const tags = [state.resource_outlook, state.system_stability, state.dominant_value, state.archetype, state.technology_1, state.technology_2].filter(Boolean);
   document.getElementById('pdf-tags').innerHTML = tags.map(t => `<span class="pdf-tag">${t}</span>`).join('');
   document.getElementById('pdf-distant').textContent = state.distant_future || '';
