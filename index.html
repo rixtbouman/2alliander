@@ -537,7 +537,7 @@
     <div id="intervention-viewer" style="display:none;">
       <textarea id="input-intervention-viewer" readonly placeholder="Waiting for moderator to type..." style="color:var(--gray-dark);"></textarea>
     </div>
-    <div class="facilitation mt-3" id="facilitation-intervention" style="display:none;">From your perspective — what do you think will happen as a result of this intervention? What consequences do you expect, and how might it alter the original scenario?</div>
+    <div class="facilitation mt-3" id="facilitation-intervention">From your perspective — what do you think will happen as a result of this intervention? What consequences do you expect, and how might it alter the original scenario?</div>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="submitIntervention()" id="btn-submit-intervention" disabled>Explore Consequences</button>
     <div class="bottom-nav">
@@ -567,7 +567,7 @@
     <h2 class="mb-3" id="title-team">Your Team</h2>
     <div id="team-moderator">
       <p class="subtitle" id="label-team-name">Team Name</p>
-      <input type="text" id="input-team-name" placeholder="Enter your team name..." class="mb-4">
+      <input type="text" id="input-team-name" placeholder="Enter your team name..." class="mb-4" oninput="syncTeamName()">
       <p class="subtitle" id="label-attitudes">Which perspectives are at your table?</p>
       <div class="attitude-grid" id="attitude-grid">
         <div class="attitude-card" onclick="toggleAttitude(this, 'Existential Alarmist')">Existential Alarmist</div>
@@ -596,7 +596,7 @@
     <div id="insight-fields"></div>
     <div class="insight-group">
       <div class="insight-label insight-general" id="label-general-insight">General Insights</div>
-      <textarea id="input-insight-general" placeholder="Any other reflections..."></textarea>
+      <textarea id="input-insight-general" placeholder="Any other reflections..." oninput="syncInsights()"></textarea>
     </div>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="submitInsights()" id="btn-submit-insights">Finish</button>
@@ -699,8 +699,15 @@ let realtimeChannel = null;
 let moderatorScreen = null;
 let toastTimer = null;
 let interventionSyncTimer = null;
+let teamNameSyncTimer = null;
+let insightsSyncTimer = null;
 let pregenB5 = null; // Promise for background B5
 let pregenB6 = null; // Promise for background B6
+let viewerCurrentScreen = null; // Track where viewer is
+let moderatorCurrentStatus = null; // Track moderator's latest status
+
+const SCREEN_ORDER = ['cards', 'distant', 'nsd', 'near', 'intervention', 'consequences', 'team', 'insights', 'closing'];
+function screenIndex(name) { return SCREEN_ORDER.indexOf(name); }
 
 // ---------- i18n ----------
 const i18n = {
@@ -958,6 +965,8 @@ function showScreen(name) {
   const screen = document.getElementById('screen-' + name);
   if (screen) screen.classList.add('active');
 
+  if (state.role === 'viewer') viewerCurrentScreen = name;
+
   // Background intensity: prominent on welcome/closing/completed
   setBgIntensity(['welcome', 'closing', 'completed'].includes(name));
 
@@ -978,7 +987,6 @@ function showScreen(name) {
       document.getElementById('team-viewer').style.display = 'block';
     }
     if (name === 'insights') {
-      // Viewer sees read-only insights from moderator
       document.getElementById('btn-submit-insights').style.display = 'none';
     }
   }
@@ -996,11 +1004,30 @@ function showScreen(name) {
 }
 
 function navigateTo(screenName) {
+  // Prevent viewer from navigating forward past moderator
+  if (state.role === 'viewer' && moderatorCurrentStatus) {
+    const modScreen = statusToScreen(moderatorCurrentStatus);
+    if (screenIndex(screenName) > screenIndex(modScreen)) return;
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const screen = document.getElementById('screen-' + screenName);
   if (screen) screen.classList.add('active');
+  if (state.role === 'viewer') viewerCurrentScreen = screenName;
   setBgIntensity(false);
   if (['distant', 'nsd', 'near', 'consequences'].includes(screenName)) renderChoiceTags('tags-' + screenName);
+}
+
+function statusToScreen(status) {
+  const map = {
+    'card_selection': 'cards', 'generating': 'cards',
+    'generating_seed': 'cards', 'generating_scenario': 'distant',
+    'checking_coherence': 'distant', 'revising_scenario': 'distant',
+    'generating_signals': 'distant', 'distant_future': 'distant',
+    'not_so_distant_future': 'nsd', 'near_future': 'near',
+    'intervention': 'intervention', 'consequences': 'consequences',
+    'team': 'team', 'insights': 'insights', 'closing': 'closing',
+  };
+  return map[status] || 'cards';
 }
 
 // ---------- TOAST ----------
@@ -1178,20 +1205,25 @@ function loadSessionData(data) {
 }
 
 function navigateToStatus(status) {
-  const screenMap = {
-    'card_selection': 'cards', 'generating': 'cards',
-    'generating_seed': 'cards', 'generating_scenario': 'cards',
-    'checking_coherence': 'cards', 'revising_scenario': 'cards',
-    'generating_signals': 'distant',
-    'distant_future': 'distant',
-    'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
-    'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
-  };
-  const screen = screenMap[status] || 'cards';
-  if (state.role === 'viewer' && (screen === 'cards' || isGeneratingStatus(status))) {
-    document.getElementById('cards-moderator').style.display = 'none';
-    document.getElementById('cards-viewer').style.display = 'block';
-    updateViewerGenerationPhase(status);
+  moderatorCurrentStatus = status;
+  const screen = statusToScreen(status);
+  if (state.role === 'viewer') {
+    if (isGeneratingStatus(status)) {
+      // During generation, move viewer to distant future screen and show typing loader
+      document.getElementById('cards-moderator').style.display = 'none';
+      document.getElementById('cards-viewer').style.display = 'none';
+      if (status === 'generating_seed') {
+        // Stay on cards for seed generation
+        document.getElementById('cards-viewer').style.display = 'block';
+        document.getElementById('viewer-waiting-text').textContent = t('typing-seed');
+        showScreen('cards');
+      } else {
+        // Move to distant future screen for B2+ phases
+        showScreen('distant');
+        showViewerTypingLoader(status);
+      }
+      return;
+    }
   }
   showScreen(screen);
 }
@@ -1200,17 +1232,15 @@ function isGeneratingStatus(status) {
   return ['generating', 'generating_seed', 'generating_scenario', 'checking_coherence', 'revising_scenario', 'generating_signals'].includes(status);
 }
 
-function updateViewerGenerationPhase(status) {
+function showViewerTypingLoader(status) {
   const phaseMap = {
-    'generating_seed': 'typing-seed',
     'generating_scenario': 'typing-crafting',
     'checking_coherence': 'typing-checking',
     'revising_scenario': 'typing-revising',
     'generating_signals': 'typing-signals',
   };
-  const textEl = document.getElementById('viewer-waiting-text');
   if (phaseMap[status]) {
-    textEl.textContent = t(phaseMap[status]);
+    startTypingLoader('text-distant', t(phaseMap[status]));
   }
 }
 
@@ -1225,21 +1255,31 @@ function subscribeToSession() {
       const data = payload.new;
       const oldStatus = state.status;
       state.status = data.status;
+      moderatorCurrentStatus = data.status;
       loadSessionData(data);
       if (state.role === 'viewer' && data.status !== oldStatus) {
+        const targetScreen = statusToScreen(data.status);
+        const oldScreen = statusToScreen(oldStatus);
+
         if (isGeneratingStatus(data.status)) {
-          // Update generation phase indicator for viewer
-          updateViewerGenerationPhase(data.status);
+          // Show thinking steps on the right screen
+          if (data.status === 'generating_seed') {
+            document.getElementById('viewer-waiting-text').textContent = t('typing-seed');
+          } else {
+            // Move viewer to distant future screen for B2+ phases
+            if (viewerCurrentScreen !== 'distant') showScreen('distant');
+            showViewerTypingLoader(data.status);
+          }
         } else {
-          // Auto-navigate viewer to the new screen immediately
-          const screenMap = {
-            'card_selection': 'cards', 'distant_future': 'distant',
-            'not_so_distant_future': 'nsd', 'near_future': 'near', 'intervention': 'intervention',
-            'consequences': 'consequences', 'team': 'team', 'insights': 'insights', 'closing': 'closing',
-          };
-          const target = screenMap[data.status] || 'cards';
-          showScreen(target);
-          showBriefToast(t('toast-moderator-moved'));
+          // Moderator moved to a new content screen
+          if (viewerCurrentScreen === oldScreen || viewerCurrentScreen === null) {
+            // Viewer is following moderator — auto-navigate
+            showScreen(targetScreen);
+            showBriefToast(t('toast-moderator-moved'));
+          } else {
+            // Viewer went back — show "go there" toast
+            showToast(t('toast-moderator-moved'), targetScreen);
+          }
         }
       }
       if (state.role === 'viewer' && data.user_intervention) {
@@ -1293,24 +1333,53 @@ function toggleTech(el, name) {
   document.getElementById('btn-generate').disabled = state.selectedTechs.length < 2;
 }
 
+// ---------- TEAM NAME SYNC ----------
+let teamNameSyncTimer = null;
+function syncTeamName() {
+  state.team_name = document.getElementById('input-team-name').value.trim();
+  if (teamNameSyncTimer) clearTimeout(teamNameSyncTimer);
+  teamNameSyncTimer = setTimeout(() => {
+    sb.from('sessions').update({ team_name: state.team_name }).eq('session_id', state.sessionId).then();
+  }, 300);
+}
+
 // ---------- ATTITUDES ----------
 function toggleAttitude(el, name) {
   el.classList.toggle('selected');
   if (el.classList.contains('selected')) state.selectedAttitudes.push(name);
   else state.selectedAttitudes = state.selectedAttitudes.filter(a => a !== name);
+  // Immediately sync to DB so viewer sees live updates
+  sb.from('sessions').update({ attitudes: state.selectedAttitudes.join(',') }).eq('session_id', state.sessionId).then();
+}
+
+let insightSyncTimer = null;
+function syncInsights() {
+  if (insightSyncTimer) clearTimeout(insightSyncTimer);
+  insightSyncTimer = setTimeout(() => {
+    const insightsData = {};
+    state.selectedAttitudes.forEach(att => {
+      const id = 'input-insight-' + att.replace(/\s+/g, '-').toLowerCase();
+      const el = document.getElementById(id);
+      if (el && el.value.trim()) insightsData[att] = el.value.trim();
+    });
+    const generalInsight = document.getElementById('input-insight-general').value.trim();
+    if (generalInsight) insightsData['General'] = generalInsight;
+    state.insights_data = insightsData;
+    sb.from('sessions').update({ insights_data: insightsData }).eq('session_id', state.sessionId).then();
+  }, 500);
 }
 
 function proceedToInsights() {
   state.team_name = document.getElementById('input-team-name').value.trim();
   sb.from('sessions').update({
-    team_name: state.team_name, attitudes: state.selectedAttitudes.join(','),
+    team_name: state.team_name, attitudes: state.selectedAttitudes.join(','), status: 'insights',
   }).eq('session_id', state.sessionId).then();
   const container = document.getElementById('insight-fields');
   container.innerHTML = '';
   state.selectedAttitudes.forEach(att => {
     const group = document.createElement('div');
     group.className = 'insight-group';
-    group.innerHTML = `<div class="insight-label">${att}</div><textarea id="input-insight-${att.replace(/\s+/g, '-').toLowerCase()}" placeholder="Insight from the ${att} perspective..."></textarea>`;
+    group.innerHTML = `<div class="insight-label">${att}</div><textarea id="input-insight-${att.replace(/\s+/g, '-').toLowerCase()}" placeholder="Insight from the ${att} perspective..." oninput="syncInsights()"></textarea>`;
     container.appendChild(group);
   });
   showScreen('insights');
@@ -1342,7 +1411,6 @@ function updateInterventionCounter() {
   counter.textContent = `${len} / 20 min`;
   counter.classList.toggle('met', len >= 20);
   document.getElementById('btn-submit-intervention').disabled = len < 20;
-  if (len >= 20) showFacilitation('intervention');
   if (interventionSyncTimer) clearTimeout(interventionSyncTimer);
   interventionSyncTimer = setTimeout(() => {
     sb.from('sessions').update({ user_intervention: input.value }).eq('session_id', state.sessionId).then();
@@ -1551,14 +1619,12 @@ async function generateScenario() {
     console.log('[Pipeline] Starting B5 in background...');
     pregenB5 = silentAPICall('b5').then(async (result) => {
       state.not_so_distant_future = result;
-      console.log('[Pipeline] B5 background complete');
-      await sb.from('sessions').update({ b5_output: result }).eq('session_id', state.sessionId);
+      console.log('[Pipeline] B5 background complete (saved locally, DB save deferred)');
       // Chain B6 in background
       console.log('[Pipeline] Starting B6 in background...');
       pregenB6 = silentAPICall('b6').then(async (result6) => {
         state.near_future = result6;
-        console.log('[Pipeline] B6 background complete');
-        await sb.from('sessions').update({ b6_output: result6 }).eq('session_id', state.sessionId);
+        console.log('[Pipeline] B6 background complete (saved locally, DB save deferred)');
         // Chain B7 in background
         console.log('[Pipeline] Starting B7 in background...');
         silentAPICall('b7').catch(e => console.warn('B7 background failed:', e));
@@ -1586,7 +1652,6 @@ async function generateScenario() {
 
 async function continueToNotSoDistant() {
   document.getElementById('btn-to-nsd').style.display = 'none';
-  await sb.from('sessions').update({ status: 'not_so_distant_future' }).eq('session_id', state.sessionId);
   showScreen('nsd');
   if (pregenB5) {
     // Wait for background B5 to finish if still running
@@ -1595,9 +1660,12 @@ async function continueToNotSoDistant() {
       await pregenB5;
       stopTypingLoader('text-nsd');
     }
+    // Save output + status together so viewer gets text and navigation trigger simultaneously
+    await sb.from('sessions').update({ b5_output: state.not_so_distant_future, status: 'not_so_distant_future' }).eq('session_id', state.sessionId);
     await simulateStreaming('text-nsd', state.not_so_distant_future);
   } else {
     // Fallback: generate normally if background failed
+    await sb.from('sessions').update({ status: 'not_so_distant_future' }).eq('session_id', state.sessionId);
     state.not_so_distant_future = await streamFromAPI('b5', 'text-nsd', 'b5_output');
   }
   showFacilitation('nsd');
@@ -1608,7 +1676,6 @@ async function continueToNotSoDistant() {
 
 async function continueToNear() {
   document.getElementById('btn-to-near').style.display = 'none';
-  await sb.from('sessions').update({ status: 'near_future' }).eq('session_id', state.sessionId);
   showScreen('near');
   if (pregenB6) {
     // Wait for background B6 to finish if still running
@@ -1617,9 +1684,12 @@ async function continueToNear() {
       await pregenB6;
       stopTypingLoader('text-near');
     }
+    // Save output + status together so viewer gets text and navigation trigger simultaneously
+    await sb.from('sessions').update({ b6_output: state.near_future, status: 'near_future' }).eq('session_id', state.sessionId);
     await simulateStreaming('text-near', state.near_future);
   } else {
     // Fallback: generate normally if background failed
+    await sb.from('sessions').update({ status: 'near_future' }).eq('session_id', state.sessionId);
     state.near_future = await streamFromAPI('b6', 'text-near', 'b6_output');
     silentAPICall('b7').catch(e => console.warn('B7 failed:', e));
   }
