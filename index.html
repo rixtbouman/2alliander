@@ -43,32 +43,32 @@
   }
   .bg-circle-1 {
     width: 500px; height: 500px; top: -150px; right: -120px;
-    background: radial-gradient(circle, rgba(0,0,255,0.04) 0%, rgba(0,0,255,0.06) 35%, rgba(0,0,255,0.18) 55%, rgba(0,0,255,0.22) 65%, transparent 80%);
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,255,0.08) 60%, rgba(0,0,255,0.15) 70%, transparent 80%);
   }
   .bg-circle-2 {
     width: 400px; height: 400px; bottom: -100px; left: -100px;
-    background: radial-gradient(circle, rgba(218,241,62,0.04) 0%, rgba(218,241,62,0.06) 30%, rgba(218,241,62,0.15) 50%, rgba(218,241,62,0.27) 63%, transparent 78%);
+    background: radial-gradient(circle, transparent 35%, rgba(218,241,62,0.1) 55%, rgba(218,241,62,0.18) 65%, transparent 75%);
   }
   .bg-circle-3 {
     width: 300px; height: 300px; top: 40%; left: -80px;
-    background: radial-gradient(circle, rgba(0,0,255,0.03) 0%, rgba(0,0,255,0.04) 35%, rgba(0,0,255,0.1) 55%, rgba(0,0,255,0.15) 65%, transparent 80%);
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,255,0.05) 60%, rgba(0,0,255,0.1) 70%, transparent 80%);
   }
   .bg-circle-4 {
     width: 350px; height: 350px; top: 15%; right: -60px;
-    background: radial-gradient(circle, rgba(255,0,255,0.03) 0%, rgba(255,0,255,0.05) 30%, rgba(255,0,255,0.12) 52%, rgba(255,0,255,0.18) 64%, transparent 78%);
+    background: radial-gradient(circle, transparent 38%, rgba(255,0,255,0.06) 55%, rgba(255,0,255,0.12) 67%, transparent 78%);
   }
   /* Stronger circles for welcome/closing */
   .bg-circles.prominent .bg-circle-1 {
-    background: radial-gradient(circle, rgba(0,0,255,0.06) 0%, rgba(0,0,255,0.1) 35%, rgba(0,0,255,0.25) 55%, rgba(0,0,255,0.32) 65%, transparent 80%);
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,255,0.12) 50%, rgba(0,0,255,0.22) 65%, transparent 80%);
   }
   .bg-circles.prominent .bg-circle-2 {
-    background: radial-gradient(circle, rgba(218,241,62,0.06) 0%, rgba(218,241,62,0.1) 30%, rgba(218,241,62,0.22) 50%, rgba(218,241,62,0.35) 63%, transparent 78%);
+    background: radial-gradient(circle, transparent 25%, rgba(218,241,62,0.15) 45%, rgba(218,241,62,0.25) 60%, transparent 75%);
   }
   .bg-circles.prominent .bg-circle-3 {
-    background: radial-gradient(circle, rgba(0,0,255,0.05) 0%, rgba(0,0,255,0.07) 35%, rgba(0,0,255,0.15) 55%, rgba(0,0,255,0.22) 65%, transparent 80%);
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,255,0.08) 50%, rgba(0,0,255,0.15) 65%, transparent 80%);
   }
   .bg-circles.prominent .bg-circle-4 {
-    background: radial-gradient(circle, rgba(255,0,255,0.05) 0%, rgba(255,0,255,0.08) 30%, rgba(255,0,255,0.18) 52%, rgba(255,0,255,0.26) 64%, transparent 78%);
+    background: radial-gradient(circle, transparent 30%, rgba(255,0,255,0.1) 48%, rgba(255,0,255,0.2) 62%, transparent 78%);
   }
 
   #app {
@@ -80,13 +80,6 @@
     flex-direction: column;
     position: relative;
     z-index: 1;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
-    transition: background 0.4s ease;
-  }
-  #app.bg-prominent {
-    background: rgba(255,255,255,0.7);
   }
 
   h1, h2, h3 {
@@ -971,9 +964,8 @@ function renderAllTags() {
 // ---------- BACKGROUND CIRCLES INTENSITY ----------
 function setBgIntensity(prominent) {
   const bg = document.getElementById('bg-circles');
-  const app = document.getElementById('app');
-  if (prominent) { bg.classList.add('prominent'); app.classList.add('bg-prominent'); }
-  else { bg.classList.remove('prominent'); app.classList.remove('bg-prominent'); }
+  if (prominent) bg.classList.add('prominent');
+  else bg.classList.remove('prominent');
 }
 
 // ---------- NAVIGATION ----------
