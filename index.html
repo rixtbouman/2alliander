@@ -515,7 +515,7 @@
     <div class="timeframe" id="tf-near">2027 — 2030</div>
     <h2 class="mb-3" id="title-near">The Near Future</h2>
     <div class="scenario-text mb-2" id="text-near"></div>
-    <div class="facilitation mt-3" id="facilitation-near" style="display:none;">What in this near future do you recognize from your current work? From your role: what decisions being made today should we be paying more attention to?</div>
+    <div class="facilitation mt-3" id="facilitation-near" style="display:none;">What aspects in the near future do you already recognize for Alliander? And looking through your adopted perspective: what decisions being made today deserve more attention?</div>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
     <div class="bottom-nav">
@@ -535,6 +535,7 @@
     <div id="intervention-viewer" style="display:none;">
       <textarea id="input-intervention-viewer" readonly placeholder="Waiting for moderator to type..." style="color:var(--gray-dark);"></textarea>
     </div>
+    <div class="facilitation mt-3" id="facilitation-intervention" style="display:none;">From your perspective — what do you think will happen as a result of this intervention? What consequences do you expect, and how might it alter the original scenario?</div>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="submitIntervention()" id="btn-submit-intervention" disabled>Explore Consequences</button>
     <div class="bottom-nav">
@@ -549,7 +550,7 @@
     <div class="timeframe" id="tf-consequences">Altered Future</div>
     <h2 class="mb-3" id="title-consequences">If You Intervene...</h2>
     <div class="scenario-text mb-2" id="text-consequences"></div>
-    <div class="facilitation mt-3" id="facilitation-consequences" style="display:none;">Did the consequences surprise you? From your perspective — what trade-off here is acceptable, and what isn't? Where do you disagree with each other?</div>
+    <div class="facilitation mt-3" id="facilitation-consequences" style="display:none;">What surprised you? What came back that you expected — and what didn't?</div>
     <button class="btn btn-secondary mt-2" onclick="showOriginalScenario()" id="btn-view-original" style="display:none;">View Original 2050 Scenario</button>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="showScreen('team')" id="btn-to-team" style="display:none;">Continue</button>
@@ -767,9 +768,10 @@ const i18n = {
     'summary-value': 'Dominant Value',
     'facilitation-distant': 'Take 5-10 minutes to discuss this future from the perspectives you have adopted. What stands out to you?',
     'facilitation-nsd': 'Discuss: How does this future come about? What are the drivers today, and what stands in the way?',
-    'facilitation-near': 'What in this near future do you recognize from your current work? From your role: what decisions being made today should we be paying more attention to?',
+    'facilitation-near': 'What aspects in the near future do you already recognize for Alliander? And looking through your adopted perspective: what decisions being made today deserve more attention?',
     'facilitation-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
-    'facilitation-consequences': 'Did the consequences surprise you? From your perspective — what trade-off here is acceptable, and what isn\'t? Where do you disagree with each other?',
+    'facilitation-intervention': 'From your perspective — what do you think will happen as a result of this intervention? What consequences do you expect, and how might it alter the original scenario?',
+    'facilitation-consequences': 'What surprised you? What came back that you expected — and what didn\'t?',
     'instruction-cards-moderator': 'Select the scenario parameters',
     'instruction-cards-viewer': 'Waiting for the moderator to select the scenario parameters',
     'instruction-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
@@ -850,9 +852,10 @@ const i18n = {
     'summary-value': 'Dominante Waarde',
     'facilitation-distant': 'Neem 5-10 minuten om deze toekomst te bespreken vanuit de perspectieven die jullie hebben aangenomen. Wat valt jullie op?',
     'facilitation-nsd': 'Hoe komt deze toekomst tot stand? Wat zijn de drivers vandaag de dag, en wat staat er in de weg?',
-    'facilitation-near': 'Wat herkennen jullie in deze nabije toekomst vanuit jullie huidige werk? Vanuit jullie rol: aan welke beslissingen die nu worden genomen zouden we meer aandacht moeten besteden?',
+    'facilitation-near': 'Welke aspecten van deze nabije toekomst herkennen jullie al binnen Alliander? En vanuit jullie ingenomen perspectief: welke beslissingen die vandaag worden genomen verdienen aandacht?',
     'facilitation-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
-    'facilitation-consequences': 'Verrasten de gevolgen jullie? Vanuit jullie perspectief — welke afweging is hier acceptabel en welke niet? Waar zijn jullie het met elkaar oneens?',
+    'facilitation-intervention': 'Vanuit jullie perspectief: wat zijn de verwachte gevolgen van deze interventie? En hoe zou dit het oorspronkelijke scenario kunnen beïnvloeden of veranderen?',
+    'facilitation-consequences': 'Wat heeft jullie verrast? Wat kwam overeen met jullie verwachtingen — en wat juist niet?',
     'instruction-cards-moderator': 'Selecteer de scenarioparameters',
     'instruction-cards-viewer': 'Wachten tot de moderator de scenarioparameters selecteert',
     'instruction-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
@@ -1307,6 +1310,7 @@ function updateInterventionCounter() {
   counter.textContent = `${len} / 20 min`;
   counter.classList.toggle('met', len >= 20);
   document.getElementById('btn-submit-intervention').disabled = len < 20;
+  if (len >= 20) showFacilitation('intervention');
   if (interventionSyncTimer) clearTimeout(interventionSyncTimer);
   interventionSyncTimer = setTimeout(() => {
     sb.from('sessions').update({ user_intervention: input.value }).eq('session_id', state.sessionId).then();
@@ -1713,7 +1717,7 @@ function startOver() {
   document.getElementById('btn-to-intervention').style.display = 'none';
   document.getElementById('btn-to-team').style.display = 'none';
   document.getElementById('btn-view-original').style.display = 'none';
-  ['facilitation-distant', 'facilitation-nsd', 'facilitation-near', 'facilitation-consequences'].forEach(id => {
+  ['facilitation-distant', 'facilitation-nsd', 'facilitation-near', 'facilitation-intervention', 'facilitation-consequences'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
   document.getElementById('nav-distant').style.display = 'none';
