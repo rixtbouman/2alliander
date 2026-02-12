@@ -977,6 +977,10 @@ function showScreen(name) {
       const el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
+    if (name === 'cards') {
+      document.getElementById('cards-moderator').style.display = 'none';
+      document.getElementById('cards-viewer').style.display = 'block';
+    }
     if (name === 'intervention') {
       document.getElementById('intervention-moderator').style.display = 'none';
       document.getElementById('intervention-viewer').style.display = 'block';
@@ -987,6 +991,7 @@ function showScreen(name) {
     }
     if (name === 'insights') {
       document.getElementById('btn-submit-insights').style.display = 'none';
+      updateViewerInsights();
     }
   }
 
@@ -1192,11 +1197,11 @@ function loadSessionData(data) {
     const attContainer = document.getElementById('viewer-attitudes');
     if (attContainer && state.selectedAttitudes.length) {
       attContainer.innerHTML = state.selectedAttitudes.map(a =>
-        `<span class="chip selected" style="flex:none; padding:0.5rem 1rem; cursor:default;">${a}</span>`
+        `<span class="chip" style="flex:none; padding:0.5rem 1rem; cursor:default; background:#ff00ff; color:#fff; border-color:#ff00ff;">${a}</span>`
       ).join('');
     }
     // Update viewer insight fields to match moderator's attitudes
-    if (state.insights_data && Object.keys(state.insights_data).length) {
+    if ((state.insights_data && Object.keys(state.insights_data).length) || state.selectedAttitudes.length) {
       updateViewerInsights();
     }
   }
@@ -1232,11 +1237,16 @@ function isGeneratingStatus(status) {
 }
 
 function showViewerTypingLoader(status) {
+  if (status === 'generating_signals') {
+    // Show loading in weak signals block instead of clearing distant future text
+    document.getElementById('weak-signals-block').style.display = 'block';
+    document.getElementById('text-weak-signals').innerHTML = '<div class="loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>' + t('typing-signals') + '</span></div>';
+    return;
+  }
   const phaseMap = {
     'generating_scenario': 'typing-crafting',
     'checking_coherence': 'typing-checking',
     'revising_scenario': 'typing-revising',
-    'generating_signals': 'typing-signals',
   };
   if (phaseMap[status]) {
     startTypingLoader('text-distant', t(phaseMap[status]));
@@ -1386,16 +1396,30 @@ function proceedToInsights() {
 function updateViewerInsights() {
   const container = document.getElementById('insight-fields');
   container.innerHTML = '';
-  for (const [att, value] of Object.entries(state.insights_data)) {
-    if (att === 'General') continue;
-    const group = document.createElement('div');
-    group.className = 'insight-group';
-    group.innerHTML = `<div class="insight-label">${att}</div><textarea readonly style="color:var(--black);">${value}</textarea>`;
-    container.appendChild(group);
+  const hasInsights = state.insights_data && Object.keys(state.insights_data).length;
+  // Show fields from insights_data if available
+  if (hasInsights) {
+    for (const [att, value] of Object.entries(state.insights_data)) {
+      if (att === 'General') continue;
+      const group = document.createElement('div');
+      group.className = 'insight-group';
+      group.innerHTML = `<div class="insight-label">${att}</div><textarea readonly style="color:var(--black);">${value}</textarea>`;
+      container.appendChild(group);
+    }
+  } else if (state.selectedAttitudes.length) {
+    // Show empty read-only fields based on selected attitudes
+    state.selectedAttitudes.forEach(att => {
+      const group = document.createElement('div');
+      group.className = 'insight-group';
+      group.innerHTML = `<div class="insight-label">${att}</div><textarea readonly placeholder="Waiting for moderator..." style="color:var(--gray-dark);"></textarea>`;
+      container.appendChild(group);
+    });
   }
   const generalEl = document.getElementById('input-insight-general');
-  if (generalEl && state.insights_data['General']) {
-    generalEl.value = state.insights_data['General'];
+  if (generalEl) {
+    if (state.insights_data && state.insights_data['General']) {
+      generalEl.value = state.insights_data['General'];
+    }
     generalEl.readOnly = true;
     generalEl.style.color = 'var(--black)';
   }
@@ -1759,9 +1783,15 @@ function exportPDF() {
 }
 
 // ---------- MODAL ----------
-function showOriginalScenario() {
+async function showOriginalScenario() {
+  let text = state.distant_future || '';
+  if (!text && state.sessionId) {
+    // Fallback: fetch from Supabase if state is empty
+    const { data } = await sb.from('sessions').select('b2_output').eq('session_id', state.sessionId).single();
+    if (data && data.b2_output) { text = data.b2_output; state.distant_future = text; }
+  }
   document.getElementById('modal-archetype').textContent = state.archetype || '';
-  document.getElementById('modal-distant-text').innerHTML = renderMarkdown(state.distant_future || '');
+  document.getElementById('modal-distant-text').innerHTML = renderMarkdown(text);
   document.getElementById('modal-overlay').style.display = 'flex';
 }
 function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
