@@ -700,7 +700,6 @@ let moderatorScreen = null;
 let toastTimer = null;
 let interventionSyncTimer = null;
 let teamNameSyncTimer = null;
-let insightsSyncTimer = null;
 let pregenB5 = null; // Promise for background B5
 let pregenB6 = null; // Promise for background B6
 let viewerCurrentScreen = null; // Track where viewer is
@@ -1334,7 +1333,6 @@ function toggleTech(el, name) {
 }
 
 // ---------- TEAM NAME SYNC ----------
-let teamNameSyncTimer = null;
 function syncTeamName() {
   state.team_name = document.getElementById('input-team-name').value.trim();
   if (teamNameSyncTimer) clearTimeout(teamNameSyncTimer);
