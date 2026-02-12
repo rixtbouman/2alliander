@@ -353,9 +353,11 @@
       padding: 2px 8px; border: 1px solid #ccc; text-transform: uppercase;
     }
     #pdf-template .pdf-section {
-      margin-bottom: 20px; white-space: pre-wrap;
+      margin-bottom: 20px;
       page-break-inside: avoid;
     }
+    #pdf-template .pdf-section ul { margin: 0.5em 0; padding-left: 1.5em; }
+    #pdf-template .pdf-section li { margin-bottom: 0.25em; }
     #pdf-template .pdf-footer {
       text-align: center; margin-top: 30px; padding-top: 15px;
       border-top: 2px solid #000; font-size: 9pt; color: #888;
@@ -1762,7 +1764,12 @@ function buildSummary() {
 }
 
 // ---------- PDF EXPORT ----------
-function exportPDF() {
+async function exportPDF() {
+  // For viewers, fetch fresh data from Supabase to ensure completeness
+  if (state.role === 'viewer' && state.sessionId) {
+    const { data } = await sb.from('sessions').select('*').eq('session_id', state.sessionId).single();
+    if (data) loadSessionData(data);
+  }
   document.getElementById('pdf-team').textContent = state.team_name || 'Unnamed Team';
   document.getElementById('pdf-date').textContent = new Date().toLocaleDateString();
   document.getElementById('pdf-code').textContent = state.sessionCode || '';
@@ -1770,15 +1777,15 @@ function exportPDF() {
     ? 'Perspectives: ' + state.selectedAttitudes.join(', ') : '';
   const tags = [state.resource_outlook, state.system_stability, state.dominant_value, state.archetype, state.technology_1, state.technology_2].filter(Boolean);
   document.getElementById('pdf-tags').innerHTML = tags.map(t => `<span class="pdf-tag">${t}</span>`).join('');
-  document.getElementById('pdf-distant').textContent = state.distant_future || '';
-  document.getElementById('pdf-weak-signals').textContent = state.weak_signals || '';
-  document.getElementById('pdf-nsd').textContent = state.not_so_distant_future || '';
-  document.getElementById('pdf-near').textContent = state.near_future || '';
-  document.getElementById('pdf-intervention').textContent = state.intervention_text || '';
-  document.getElementById('pdf-consequences').textContent = state.consequences || '';
+  document.getElementById('pdf-distant').innerHTML = renderMarkdown(state.distant_future || '');
+  document.getElementById('pdf-weak-signals').innerHTML = renderMarkdown(state.weak_signals || '');
+  document.getElementById('pdf-nsd').innerHTML = renderMarkdown(state.not_so_distant_future || '');
+  document.getElementById('pdf-near').innerHTML = renderMarkdown(state.near_future || '');
+  document.getElementById('pdf-intervention').innerHTML = renderMarkdown(state.intervention_text || '');
+  document.getElementById('pdf-consequences').innerHTML = renderMarkdown(state.consequences || '');
   let insightsText = '';
-  for (const [key, val] of Object.entries(state.insights_data)) { insightsText += `${key}:\n${val}\n\n`; }
-  document.getElementById('pdf-insights').textContent = insightsText || 'No insights recorded.';
+  for (const [key, val] of Object.entries(state.insights_data)) { insightsText += `**${key}:**\n${val}\n\n`; }
+  document.getElementById('pdf-insights').innerHTML = renderMarkdown(insightsText) || 'No insights recorded.';
   window.print();
 }
 
