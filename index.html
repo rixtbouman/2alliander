@@ -41,42 +41,38 @@
   .bg-circle {
     position: absolute; border-radius: 50%;
   }
-  /* Circle 1 — blue, large, top-left */
+  /* Circle 1 — blue, top-right (original position restored) */
   .bg-circle-1 {
-    width: 600px; height: 600px; top: -200px; left: -220px;
-    background: radial-gradient(circle, transparent 28%, rgba(0,0,255,0.04) 40%, rgba(0,0,255,0.22) 52%, rgba(0,0,255,0.32) 62%, rgba(0,0,255,0.18) 73%, transparent 85%);
-    filter: blur(14px);
+    width: 500px; height: 500px; top: -150px; right: -120px;
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,255,0.08) 60%, rgba(0,0,255,0.15) 70%, transparent 80%);
   }
-  /* Circle 2 — lime, large, center-right */
+  /* Circle 2 — lime, bottom-left (opacity raised vs original: lime needs ~3x pink's opacity) */
   .bg-circle-2 {
-    width: 560px; height: 560px; top: 60px; right: -200px;
-    background: radial-gradient(circle, transparent 28%, rgba(218,241,62,0.05) 40%, rgba(218,241,62,0.26) 52%, rgba(218,241,62,0.38) 62%, rgba(218,241,62,0.20) 73%, transparent 85%);
-    filter: blur(12px);
+    width: 400px; height: 400px; bottom: -100px; left: -100px;
+    background: radial-gradient(circle, transparent 35%, rgba(218,241,62,0.22) 55%, rgba(218,241,62,0.34) 65%, transparent 75%);
   }
-  /* Circle 3 — lime, medium, bottom-left */
+  /* Circle 3 — blue, mid-left (original position restored) */
   .bg-circle-3 {
-    width: 400px; height: 400px; bottom: -90px; left: -110px;
-    background: radial-gradient(circle, transparent 28%, rgba(218,241,62,0.04) 40%, rgba(218,241,62,0.22) 52%, rgba(218,241,62,0.34) 62%, rgba(218,241,62,0.18) 73%, transparent 85%);
-    filter: blur(12px);
+    width: 300px; height: 300px; top: 40%; left: -80px;
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,255,0.05) 60%, rgba(0,0,255,0.10) 70%, transparent 80%);
   }
-  /* Circle 4 — blue, medium, top-right */
+  /* Circle 4 — lime replacing pink, top-right area (3x pink opacity) */
   .bg-circle-4 {
-    width: 460px; height: 460px; top: -120px; right: -160px;
-    background: radial-gradient(circle, transparent 28%, rgba(0,0,255,0.04) 40%, rgba(0,0,255,0.20) 52%, rgba(0,0,255,0.30) 62%, rgba(0,0,255,0.16) 73%, transparent 85%);
-    filter: blur(14px);
+    width: 350px; height: 350px; top: 15%; right: -60px;
+    background: radial-gradient(circle, transparent 38%, rgba(218,241,62,0.20) 55%, rgba(218,241,62,0.32) 67%, transparent 78%);
   }
-  /* Prominent state — same circles, more intense for welcome/closing */
+  /* Prominent state — more intense for welcome/closing screens */
   .bg-circles.prominent .bg-circle-1 {
-    background: radial-gradient(circle, transparent 28%, rgba(0,0,255,0.06) 40%, rgba(0,0,255,0.30) 52%, rgba(0,0,255,0.44) 62%, rgba(0,0,255,0.26) 73%, transparent 85%);
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,255,0.12) 50%, rgba(0,0,255,0.22) 65%, transparent 80%);
   }
   .bg-circles.prominent .bg-circle-2 {
-    background: radial-gradient(circle, transparent 28%, rgba(218,241,62,0.08) 40%, rgba(218,241,62,0.36) 52%, rgba(218,241,62,0.52) 62%, rgba(218,241,62,0.28) 73%, transparent 85%);
+    background: radial-gradient(circle, transparent 25%, rgba(218,241,62,0.30) 45%, rgba(218,241,62,0.46) 60%, transparent 75%);
   }
   .bg-circles.prominent .bg-circle-3 {
-    background: radial-gradient(circle, transparent 28%, rgba(218,241,62,0.06) 40%, rgba(218,241,62,0.30) 52%, rgba(218,241,62,0.46) 62%, rgba(218,241,62,0.24) 73%, transparent 85%);
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,255,0.08) 50%, rgba(0,0,255,0.15) 65%, transparent 80%);
   }
   .bg-circles.prominent .bg-circle-4 {
-    background: radial-gradient(circle, transparent 28%, rgba(0,0,255,0.06) 40%, rgba(0,0,255,0.28) 52%, rgba(0,0,255,0.42) 62%, rgba(0,0,255,0.22) 73%, transparent 85%);
+    background: radial-gradient(circle, transparent 30%, rgba(218,241,62,0.28) 48%, rgba(218,241,62,0.44) 62%, transparent 78%);
   }
 
   #app {
