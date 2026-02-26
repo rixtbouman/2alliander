@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>02 – Frontend Screen Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    padding: 48px 48px 60px;
+    background: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #000;
+  }
+  .page-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 400;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    margin: 0 0 40px;
+  }
+
+  .flow {
+    display: grid;
+    grid-template-columns: 320px 160px 320px;
+    gap: 0;
+    width: 800px;
+  }
+
+  /* Column headers */
+  .col-header {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 10px 16px;
+    border: 2px solid #000;
+    text-align: center;
+    background: #000;
+    color: #fff;
+  }
+  .col-header.center-head {
+    background: #fff;
+    color: #888;
+    border-left: none;
+    border-right: none;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Screen rows */
+  .row {
+    display: contents;
+  }
+
+  /* Individual screen boxes */
+  .screen-box {
+    border: 1.5px solid #000;
+    border-top: none;
+    padding: 10px 14px;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+  .screen-box.inactive {
+    border-color: #ddd;
+    background: #fafafa;
+  }
+  .screen-box.ai-phase {
+    border-color: #000;
+    background: #f5f5f5;
+  }
+  .screen-box.highlight {
+    border-left: 4px solid #daf13e;
+  }
+  .screen-box.highlight-purple {
+    border-left: 4px solid #7877f6;
+  }
+
+  .screen-name {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+  .screen-name.dim { color: #bbb; }
+
+  .screen-desc {
+    font-size: 10px;
+    color: #666;
+    line-height: 1.45;
+  }
+  .screen-desc.dim { color: #ccc; }
+
+  /* Center sync column */
+  .sync-cell {
+    border-top: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 8px;
+    min-height: 60px;
+    gap: 4px;
+  }
+  .sync-badge {
+    background: #7877f6;
+    color: #fff;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .sync-badge.lime {
+    background: #daf13e;
+    color: #000;
+  }
+  .sync-badge.outline {
+    background: transparent;
+    color: #ccc;
+    border: 1px solid #e5e5e5;
+  }
+  .sync-arrow {
+    font-size: 14px;
+    color: #7877f6;
+    line-height: 1;
+  }
+  .sync-arrow.dim {
+    color: #ddd;
+  }
+
+  /* Down arrow connectors within columns */
+  .down-arrow-row {
+    display: contents;
+  }
+  .col-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    border-left: 1.5px solid #000;
+    border-right: 1.5px solid #000;
+    font-size: 13px;
+    color: #000;
+  }
+  .col-arrow.dim {
+    border-color: #ddd;
+    color: #ccc;
+  }
+  .col-arrow-empty {
+    height: 22px;
+  }
+
+  /* AI Pipeline section separator */
+  .section-sep {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    border-left: 1.5px solid #000;
+    border-right: 1.5px solid #000;
+    padding: 0 14px;
+    background: #000;
+    color: #fff;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+  .section-sep.right {
+    border-color: #ddd;
+    background: #f5f5f5;
+    color: #888;
+  }
+  .section-sep.center {
+    background: transparent;
+    border: none;
+  }
+
+  .note {
+    margin-top: 28px;
+    font-size: 10px;
+    color: #888;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 800px;
+  }
+  .note-dot {
+    width: 6px;
+    height: 6px;
+    background: #7877f6;
+    border-radius: 50%;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-label">ALLIANDER SCENARIO PLANNING TOOL — ARCHITECTURE</div>
+<h1>02 — Frontend Screen Flow (User Journey)</h1>
+
+<div class="flow">
+
+  <!-- COLUMN HEADERS -->
+  <div class="col-header">MODERATOR</div>
+  <div class="col-header center-head">REALTIME SYNC</div>
+  <div class="col-header">VIEWER</div>
+
+  <!-- 1. WELCOME -->
+  <div class="screen-box">
+    <div class="screen-name">Welcome</div>
+    <div class="screen-desc">Choose language (NL / EN) · Start</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-badge outline">—</div>
+  </div>
+  <div class="screen-box">
+    <div class="screen-name">Welcome</div>
+    <div class="screen-desc">Choose language · Join session</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow">↓</div>
+
+  <!-- 2. SETUP / JOIN -->
+  <div class="screen-box">
+    <div class="screen-name">Setup</div>
+    <div class="screen-desc">Select 2 technologies · set scenario axes (resource outlook, system stability) · dominant value</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-badge outline">—</div>
+  </div>
+  <div class="screen-box">
+    <div class="screen-name">Join Session</div>
+    <div class="screen-desc">Enter 4-character session code shared by moderator</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow">↓</div>
+
+  <!-- 3. SESSION / CODE -->
+  <div class="screen-box highlight-purple">
+    <div class="screen-name">Session Created</div>
+    <div class="screen-desc">4-char code generated · stored in Supabase · shared with viewers</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-arrow">↔</div>
+    <div class="sync-badge">session joined</div>
+  </div>
+  <div class="screen-box highlight-purple">
+    <div class="screen-name">Session Joined</div>
+    <div class="screen-desc">Viewer connects · subscribes to Realtime channel</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow">↓</div>
+
+  <!-- 4. CARDS -->
+  <div class="screen-box">
+    <div class="screen-name">Cards</div>
+    <div class="screen-desc">Select attitude cards · saved to Supabase · triggers generation</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-arrow">↔</div>
+    <div class="sync-badge">Realtime sync</div>
+  </div>
+  <div class="screen-box">
+    <div class="screen-name">Cards</div>
+    <div class="screen-desc">Views selected attitudes in real time</div>
+  </div>
+
+  <!-- AI PIPELINE SEPARATOR -->
+  <div class="section-sep">▶ AI GENERATION PIPELINE STARTS</div>
+  <div class="section-sep center"></div>
+  <div class="section-sep right">pipeline runs server-side</div>
+
+  <!-- 5. DISTANT FUTURE -->
+  <div class="screen-box highlight">
+    <div class="screen-name">Distant Future</div>
+    <div class="screen-desc">2050+ scenario streams in · B1 seed + B2 scenario + B3 QA/revision (silent) · text visible to moderator first</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-arrow">↔</div>
+    <div class="sync-badge lime">status update</div>
+    <div style="font-size:9px; color:#888; text-align:center; margin-top:2px;">after QA pass</div>
+  </div>
+  <div class="screen-box highlight">
+    <div class="screen-name">Distant Future</div>
+    <div class="screen-desc">Scenario appears after B3 quality check passes · synced via Supabase status</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow">↓</div>
+
+  <!-- 6. NOT SO DISTANT -->
+  <div class="screen-box highlight">
+    <div class="screen-name">Not-So-Distant Future</div>
+    <div class="screen-desc">2030–2040 · B4 weak signals (silent) + B5 backcast streams in</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-arrow">↔</div>
+    <div class="sync-badge lime">status update</div>
+  </div>
+  <div class="screen-box highlight">
+    <div class="screen-name">Not-So-Distant Future</div>
+    <div class="screen-desc">Follows moderator's screen via Realtime</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow">↓</div>
+
+  <!-- 7. NEAR FUTURE -->
+  <div class="screen-box highlight">
+    <div class="screen-name">Near Future</div>
+    <div class="screen-desc">2025–2030 · B6 near-term signals stream in</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-arrow">↔</div>
+    <div class="sync-badge lime">status update</div>
+  </div>
+  <div class="screen-box highlight">
+    <div class="screen-name">Near Future</div>
+    <div class="screen-desc">Follows moderator</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow dim">↓</div>
+
+  <!-- 8. INTERVENTION -->
+  <div class="screen-box">
+    <div class="screen-name">Intervention</div>
+    <div class="screen-desc">Moderator types "what if we…" prompt · triggers B7 consequences generation</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-badge outline">—</div>
+  </div>
+  <div class="screen-box inactive">
+    <div class="screen-name dim">—</div>
+    <div class="screen-desc dim">No viewer screen for this step</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow dim">↓</div>
+
+  <!-- 9. CONSEQUENCES -->
+  <div class="screen-box highlight">
+    <div class="screen-name">Consequences</div>
+    <div class="screen-desc">AI-generated impact of the intervention · streams in</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-arrow">↔</div>
+    <div class="sync-badge lime">status update</div>
+  </div>
+  <div class="screen-box highlight">
+    <div class="screen-name">Consequences</div>
+    <div class="screen-desc">Sees consequences synced in</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow dim">↓</div>
+
+  <!-- 10. TEAM INSIGHTS -->
+  <div class="screen-box">
+    <div class="screen-name">Team Insights</div>
+    <div class="screen-desc">Fill in insight cards · saved to Supabase · shared with team</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-badge outline">—</div>
+  </div>
+  <div class="screen-box inactive">
+    <div class="screen-name dim">—</div>
+    <div class="screen-desc dim">Moderator-only step</div>
+  </div>
+
+  <!-- down arrows -->
+  <div class="col-arrow">↓</div>
+  <div class="col-arrow-empty"></div>
+  <div class="col-arrow dim">↓</div>
+
+  <!-- 11. CLOSING -->
+  <div class="screen-box">
+    <div class="screen-name">Closing</div>
+    <div class="screen-desc">Summary · Export to PDF</div>
+  </div>
+  <div class="sync-cell">
+    <div class="sync-arrow">↔</div>
+    <div class="sync-badge">session ended</div>
+  </div>
+  <div class="screen-box">
+    <div class="screen-name">Closing</div>
+    <div class="screen-desc">Session complete</div>
+  </div>
+
+</div>
+
+<div class="note">
+  <div class="note-dot"></div>
+  <span><strong style="font-family:'Roboto Mono',monospace;">Yellow left border</strong> = screens driven by AI generation pipeline. Viewer screens follow the moderator automatically via Supabase Realtime status updates — no manual navigation needed.</span>
+</div>
+
+</body>
+</html>

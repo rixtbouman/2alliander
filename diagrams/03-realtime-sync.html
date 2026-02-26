@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>03 – Real-Time Sync</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    padding: 48px 48px 60px;
+    background: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #000;
+  }
+  .page-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 400;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    margin: 0 0 48px;
+  }
+
+  .flow-wrap {
+    display: flex;
+    gap: 0;
+    width: 880px;
+  }
+
+  /* Vertical connector spine */
+  .spine {
+    width: 2px;
+    background: #000;
+    flex-shrink: 0;
+    margin: 0 36px;
+    position: relative;
+  }
+  .spine-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #000;
+    left: -5px;
+  }
+
+  .steps {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+    padding-bottom: 0;
+  }
+
+  /* Number badge */
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #000;
+    color: #fff;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 12px;
+  }
+  .step-num.lime { background: #daf13e; color: #000; }
+  .step-num.purple { background: #7877f6; color: #fff; }
+  .step-num.blue { background: #0000FF; color: #fff; }
+
+  /* Step card */
+  .step-card {
+    flex: 1;
+    border: 2px solid #000;
+    margin-bottom: 0;
+  }
+  .step-card-header {
+    background: #000;
+    color: #fff;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 9px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .step-card-header.lime { background: #daf13e; color: #000; }
+  .step-card-header.purple { background: #7877f6; color: #fff; }
+  .step-card-header.blue { background: #0000FF; color: #fff; }
+
+  .who-tag {
+    font-size: 9px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+  }
+
+  .step-card-body {
+    padding: 14px 16px 16px;
+    font-size: 11px;
+    color: #333;
+    line-height: 1.55;
+  }
+  .step-card-body .detail {
+    font-size: 10px;
+    color: #888;
+    margin-top: 6px;
+  }
+  .step-card-body code {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    background: #f5f5f5;
+    border: 1px solid #e5e5e5;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #000;
+  }
+
+  /* Arrow between steps */
+  .step-connector {
+    display: flex;
+    align-items: center;
+    padding: 6px 0 6px 64px;
+    gap: 10px;
+  }
+  .connector-line {
+    width: 2px;
+    height: 28px;
+    background: #000;
+    margin-left: 17px;
+  }
+  .connector-label {
+    font-size: 9px;
+    color: #888;
+    font-family: 'Space Grotesk', sans-serif;
+    margin-left: 8px;
+  }
+
+  /* Side-by-side actors at bottom */
+  .actors {
+    margin-top: 40px;
+    display: flex;
+    gap: 16px;
+    width: 880px;
+  }
+  .actor-box {
+    flex: 1;
+    border: 1.5px solid #000;
+    padding: 14px 16px;
+  }
+  .actor-box.purple { border-color: #7877f6; }
+  .actor-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .actor-label.purple { color: #7877f6; }
+  .actor-desc {
+    font-size: 10px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .note {
+    margin-top: 28px;
+    font-size: 10px;
+    color: #888;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 880px;
+  }
+  .note-dot {
+    width: 6px;
+    height: 6px;
+    background: #000;
+    border-radius: 50%;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-label">ALLIANDER SCENARIO PLANNING TOOL — ARCHITECTURE</div>
+<h1>03 — Real-Time Sync (Moderator → Viewers)</h1>
+
+<div class="flow-wrap">
+<div class="steps">
+
+  <!-- STEP 1 -->
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-card">
+      <div class="step-card-header">
+        MODERATOR ACTION
+        <span class="who-tag">in the browser</span>
+      </div>
+      <div class="step-card-body">
+        The moderator advances the session — e.g. clicks "Generate Scenario", moves to the next screen, or submits an intervention prompt.
+        <div class="detail">All meaningful state changes are tied to a <code>session_id</code> created when the session was started.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="step-connector">
+    <div class="connector-line"></div>
+    <div class="connector-label">browser writes directly to Supabase via REST</div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step">
+    <div class="step-num blue">2</div>
+    <div class="step-card">
+      <div class="step-card-header blue">
+        SUPABASE — STATUS UPDATE
+        <span class="who-tag">sessions table</span>
+      </div>
+      <div class="step-card-body">
+        The moderator's browser writes the new <code>status</code> value to the <code>sessions</code> row for this session.
+        <div class="detail">
+          Status values used: <code>generating_seed</code> · <code>generating_scenario</code> · <code>checking_coherence</code> · <code>revising_scenario</code> · <code>generating_signals</code> · <code>distant_future</code> · <code>not_so_distant_future</code> · <code>near_future</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="step-connector">
+    <div class="connector-line"></div>
+    <div class="connector-label">Supabase Realtime detects the row UPDATE event</div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step">
+    <div class="step-num purple">3</div>
+    <div class="step-card">
+      <div class="step-card-header purple">
+        SUPABASE REALTIME — BROADCAST
+        <span class="who-tag">WebSocket push</span>
+      </div>
+      <div class="step-card-body">
+        Supabase Realtime detects the <code>UPDATE</code> on the <code>sessions</code> table and immediately pushes the change payload to all clients subscribed to this session's channel.
+        <div class="detail">Channel filter: <code>session_id=eq.{id}</code> — only clients in the same session receive the event. No polling, no page refresh.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- connector -->
+  <div class="step-connector">
+    <div class="connector-line"></div>
+    <div class="connector-label">WebSocket message received by all viewer browsers</div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step">
+    <div class="step-num lime">4</div>
+    <div class="step-card">
+      <div class="step-card-header lime">
+        VIEWER UI — AUTO-NAVIGATE
+        <span class="who-tag">in the viewer's browser</span>
+      </div>
+      <div class="step-card-body">
+        Each viewer's browser receives the event. The status value is mapped to a target screen and <code>showScreen()</code> is called automatically — the viewer's UI navigates without any user interaction.
+        <div class="detail">
+          Example mappings: <code>distant_future</code> → screen-distant · <code>not_so_distant_future</code> → screen-nsd · <code>near_future</code> → screen-near
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Actors summary -->
+<div class="actors">
+  <div class="actor-box">
+    <div class="actor-label">MODERATOR</div>
+    <div class="actor-desc">The facilitator running the session on their own device. Only they can advance phases, trigger AI generation, and submit interventions. They see AI output streaming in real time.</div>
+  </div>
+  <div class="actor-box purple">
+    <div class="actor-label purple">VIEWER(S)</div>
+    <div class="actor-desc">Participants who joined via session code on their own devices. Their screens follow the moderator automatically. They see AI-generated content appear as the moderator progresses through the session — no input required.</div>
+  </div>
+  <div class="actor-box">
+    <div class="actor-label">SUPABASE REALTIME</div>
+    <div class="actor-desc">Acts as the message bus. Watches the <code>sessions</code> table for changes and broadcasts them to all connected clients. Built on top of PostgreSQL logical replication + Phoenix channels (WebSocket).</div>
+  </div>
+</div>
+
+<div class="note">
+  <div class="note-dot"></div>
+  <span>The AI generation pipeline (Vercel serverless → Gemini) runs independently of the sync mechanism. Generated text is saved to the <code>sessions</code> table, and viewers read it directly from Supabase when their screen loads — not through a separate stream.</span>
+</div>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Scenario Planning Tool</title>
+<title>DeltAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -55,7 +55,7 @@
   }
   .bg-circle-4 {
     width: 350px; height: 350px; top: 15%; right: -60px;
-    background: radial-gradient(circle, transparent 38%, rgba(255,0,255,0.06) 55%, rgba(255,0,255,0.12) 67%, transparent 78%);
+    background: radial-gradient(circle, transparent 38%, rgba(218,241,62,0.08) 55%, rgba(218,241,62,0.16) 67%, transparent 78%);
   }
   /* Stronger circles for welcome/closing */
   .bg-circles.prominent .bg-circle-1 {
@@ -68,7 +68,7 @@
     background: radial-gradient(circle, transparent 30%, rgba(0,0,255,0.08) 50%, rgba(0,0,255,0.15) 65%, transparent 80%);
   }
   .bg-circles.prominent .bg-circle-4 {
-    background: radial-gradient(circle, transparent 30%, rgba(255,0,255,0.1) 48%, rgba(255,0,255,0.2) 62%, transparent 78%);
+    background: radial-gradient(circle, transparent 30%, rgba(218,241,62,0.12) 48%, rgba(218,241,62,0.24) 62%, transparent 78%);
   }
 
   #app {
@@ -180,6 +180,7 @@
   .scenario-text { font-size: 1rem; line-height: 1.8; font-weight: 300; text-align: justify; }
   .scenario-text p { margin-bottom: 1em; }
   .scenario-text p:last-child { margin-bottom: 0; }
+  .scenario-text h3 { font-family: 'Roboto Mono', monospace; font-size: 0.75rem; font-weight: 500; color: var(--blue); text-transform: uppercase; letter-spacing: 0.15em; margin: 1.2em 0 0.3em; }
   .scenario-text ul { margin: 0.75em 0; padding-left: 1.25em; }
   .scenario-text li { margin-bottom: 0.4em; text-align: left; }
   .scenario-text .cursor, .weak-signals-content .cursor {
@@ -285,14 +286,14 @@
     line-height: 1.3;
     -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   }
-  .attitude-card.selected { border-color: #ff00ff; background: #ff00ff; color: var(--white); }
+  .attitude-card.selected { border-color: #EBEBFF; background: #EBEBFF; color: var(--black); }
 
   /* Insight fields */
   .insight-group { margin-bottom: 1.25rem; }
   .insight-label {
     font-family: 'Roboto Mono', monospace; font-size: 0.7rem; font-weight: 500;
     text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem;
-    color: #ff00ff;
+    color: var(--blue);
   }
   .insight-label.insight-general { color: var(--black); }
   .insight-group textarea { min-height: 80px; }
@@ -399,7 +400,7 @@
   <div class="screen active" id="screen-welcome">
     <div class="spacer"></div>
     <p style="font-family:'Roboto Mono',monospace; font-weight:300; font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--gray-dark); text-align:center;" id="welcome-org">Centre for Quantum and Society</p>
-    <h1 style="font-family:'Roboto Mono',monospace; font-weight:700; font-size:2rem; text-transform:uppercase; text-align:center; letter-spacing:0.05em; margin:1rem 0;" id="welcome-title">Scenario Tool</h1>
+    <h1 style="font-family:'Roboto Mono',monospace; font-weight:700; font-size:2rem; text-align:center; letter-spacing:0.05em; margin:1rem 0;" id="welcome-title">DeltAI</h1>
     <p style="text-align:center; color:var(--gray-dark);" class="mb-4" id="welcome-subtitle">Exploring the future of Disruptive Technologies</p>
     <div class="spacer"></div>
     <button class="btn" onclick="showScreen('setup')" id="btn-begin">Begin</button>
@@ -439,16 +440,16 @@
       <h2 class="mb-1" id="cards-title">Shape Your Future</h2>
       <p class="subtitle mb-3" id="instruction-cards-moderator">Select the scenario parameters</p>
 
-      <p class="subtitle" id="label-resource">Resource Outlook</p>
+      <p class="subtitle" id="label-resource">Resources</p>
       <div class="chip-group">
         <div class="chip selected" id="chip-abundance" onclick="selectChip('resource', 'abundance')"><span id="label-abundance">Abundance</span></div>
-        <div class="chip" id="chip-scarce" onclick="selectChip('resource', 'scarce')"><span id="label-scarce">Scarce</span></div>
+        <div class="chip" id="chip-scarce" onclick="selectChip('resource', 'scarce')"><span id="label-scarce">Limits</span></div>
       </div>
 
       <p class="subtitle" id="label-stability">System Stability</p>
       <div class="chip-group">
         <div class="chip selected" id="chip-stable" onclick="selectChip('stability', 'stable')"><span id="label-stable">Stable</span></div>
-        <div class="chip" id="chip-breaks" onclick="selectChip('stability', 'breaks_down')"><span id="label-breaks">Breaks Down</span></div>
+        <div class="chip" id="chip-breaks" onclick="selectChip('stability', 'breaks_down')"><span id="label-breaks">Breaks</span></div>
       </div>
 
       <p class="subtitle" id="label-values">Dominant Value</p>
@@ -527,7 +528,7 @@
     <div class="timeframe" id="tf-near">2027 — 2030</div>
     <h2 class="mb-3" id="title-near">Near Term</h2>
     <div class="scenario-text mb-2" id="text-near"></div>
-    <div class="facilitation mt-3" id="facilitation-near" style="display:none;">What aspects in the near future do you already recognize for Alliander? And looking through your adopted perspective: what decisions being made today deserve more attention?</div>
+    <div class="facilitation mt-3" id="facilitation-near" style="display:none;">What aspects in the near future do you already recognize for your organisation? And looking through your adopted perspective: What decisions being made today deserve more attention?</div>
     <div class="spacer"></div>
     <button class="btn mt-3" onclick="showScreen('intervention')" id="btn-to-intervention" style="display:none;">What if we intervene?</button>
     <div class="bottom-nav">
@@ -539,7 +540,7 @@
   <!-- Screen 8: Intervention -->
   <div class="screen" id="screen-intervention">
     <h2 class="mb-1" id="title-intervention">Intervention</h2>
-    <p class="subtitle mb-3" id="instruction-intervention">As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.</p>
+    <p class="subtitle mb-3" id="instruction-intervention">As a group agree on one action or strategy your organisation could take today knowing the trajectory of this future.</p>
     <div id="intervention-moderator">
       <textarea id="input-intervention" placeholder="Describe your intervention..." oninput="updateInterventionCounter()"></textarea>
       <div class="char-counter" id="intervention-counter">0 / 20 min</div>
@@ -722,7 +723,7 @@ function screenIndex(name) { return SCREEN_ORDER.indexOf(name); }
 const i18n = {
   en: {
     'welcome-org': 'Centre for Quantum and Society',
-    'welcome-title': 'SCENARIO TOOL',
+    'welcome-title': 'DeltAI',
     'welcome-subtitle': 'Exploring the future of Disruptive Technologies',
     'btn-begin': 'Begin',
     'label-language': 'Language',
@@ -735,12 +736,12 @@ const i18n = {
     'label-enter-code': 'Enter Session Code',
     'btn-join': 'Join',
     'cards-title': 'Shape Your Future',
-    'label-resource': 'Resource Outlook',
+    'label-resource': 'Resources',
     'label-abundance': 'Abundance',
-    'label-scarce': 'Scarce',
+    'label-scarce': 'Limits',
     'label-stability': 'System Stability',
     'label-stable': 'Stable',
-    'label-breaks': 'Breaks Down',
+    'label-breaks': 'Breaks',
     'label-values': 'Dominant Value',
     'label-collective': 'Collectivism',
     'label-individual': 'Individualism',
@@ -786,13 +787,13 @@ const i18n = {
     'summary-value': 'Dominant Value',
     'facilitation-distant': 'Take 5-10 minutes to discuss this future from the perspectives you have adopted. What stands out to you?',
     'facilitation-nsd': 'Discuss: How does this future come about? What are the drivers today, and what stands in the way?',
-    'facilitation-near': 'What aspects in the near future do you already recognize for Alliander? And looking through your adopted perspective: what decisions being made today deserve more attention?',
+    'facilitation-near': 'What aspects in the near future do you already recognize for your organisation? And looking through your adopted perspective: What decisions being made today deserve more attention?',
     'facilitation-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
     'facilitation-intervention': 'From your perspective — what do you think will happen as a result of this intervention? What consequences do you expect, and how might it alter the original scenario?',
     'facilitation-consequences': 'What surprised you? What came back that you expected — and what didn\'t?',
     'instruction-cards-moderator': 'Select the scenario parameters',
     'instruction-cards-viewer': 'Waiting for the moderator to select the scenario parameters',
-    'instruction-intervention': 'As a group, agree on one concrete action or strategy your organisation could take today that would alter the trajectory of this future.',
+    'instruction-intervention': 'As a group agree on one action or strategy your organisation could take today knowing the trajectory of this future.',
     'instruction-insights': 'What insights emerged from each perspective and what general insights emerged?',
     'ws-title': 'Weak Signals',
     'toast-moderator-moved': 'Moderator moved to a new phase',
@@ -806,7 +807,7 @@ const i18n = {
   },
   nl: {
     'welcome-org': 'Centre for Quantum and Society',
-    'welcome-title': 'SCENARIO TOOL',
+    'welcome-title': 'DeltAI',
     'welcome-subtitle': 'De toekomst van disruptieve technologieën verkennen',
     'btn-begin': 'Begin',
     'label-language': 'Taal',
@@ -819,12 +820,12 @@ const i18n = {
     'label-enter-code': 'Voer Sessiecode in',
     'btn-join': 'Deelnemen',
     'cards-title': 'Vorm Jouw Toekomst',
-    'label-resource': 'Grondstoffenvooruitzicht',
+    'label-resource': 'Resources',
     'label-abundance': 'Overvloed',
-    'label-scarce': 'Schaars',
+    'label-scarce': 'Limiet',
     'label-stability': 'Systeemstabiliteit',
     'label-stable': 'Stabiel',
-    'label-breaks': 'Instort',
+    'label-breaks': 'Breekt',
     'label-values': 'Dominante Waarde',
     'label-collective': 'Collectivisme',
     'label-individual': 'Individualisme',
@@ -870,13 +871,13 @@ const i18n = {
     'summary-value': 'Dominante Waarde',
     'facilitation-distant': 'Neem 5-10 minuten om deze toekomst te bespreken vanuit de perspectieven die jullie hebben aangenomen. Wat valt jullie op?',
     'facilitation-nsd': 'Hoe komt deze toekomst tot stand? Wat zijn de drivers vandaag de dag, en wat staat er in de weg?',
-    'facilitation-near': 'Welke aspecten van deze nabije toekomst herkennen jullie al binnen Alliander? En vanuit jullie ingenomen perspectief: welke beslissingen die vandaag worden genomen verdienen aandacht?',
+    'facilitation-near': 'Welke aspecten van deze nabije toekomst herkennen jullie al binnen jullie organisatie? En vanuit jullie ingenomen perspectief: Welke beslissingen die vandaag worden genomen verdienen meer aandacht?',
     'facilitation-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
     'facilitation-intervention': 'Vanuit jullie perspectief: wat zijn de verwachte gevolgen van deze interventie? En hoe zou dit het oorspronkelijke scenario kunnen beïnvloeden of veranderen?',
     'facilitation-consequences': 'Wat heeft jullie verrast? Wat kwam overeen met jullie verwachtingen — en wat juist niet?',
     'instruction-cards-moderator': 'Selecteer de scenarioparameters',
     'instruction-cards-viewer': 'Wachten tot de moderator de scenarioparameters selecteert',
-    'instruction-intervention': 'Kom als groep tot één concrete actie of strategie die jullie organisatie vandaag zou kunnen nemen om het traject van deze toekomst te veranderen.',
+    'instruction-intervention': 'Kom als groep tot één actie of strategie die jullie organisatie vandaag kan nemen, wetende het traject van deze toekomst.',
     'instruction-insights': 'Welke inzichten kwamen naar voren vanuit elk perspectief en welke algemene inzichten zijn er?',
     'ws-title': 'Zwakke Signalen',
     'toast-moderator-moved': 'De moderator is naar een nieuwe fase gegaan',
@@ -919,7 +920,7 @@ function renderMarkdown(text) {
     if (/^#{1,3}\s+/.test(trimmed)) {
       if (inList) { processed.push('</ul>'); inList = false; }
       const headerText = trimmed.replace(/^#{1,3}\s+/, '');
-      processed.push('<strong>' + headerText + '</strong>');
+      processed.push('<h3>' + headerText + '</h3>');
       continue;
     }
     // Bullet points: * item or - item
@@ -940,7 +941,7 @@ function renderMarkdown(text) {
   const paragraphs = html.split(/\n\s*\n/).map(p => p.replace(/\n/g, ' ').trim()).filter(p => p);
   if (paragraphs.length > 1) html = paragraphs.map(p => {
     // Don't wrap lists or headers in <p> tags
-    if (p.startsWith('<ul>') || p.startsWith('<strong>') || p.startsWith('<li>')) return p;
+    if (p.startsWith('<ul>') || p.startsWith('<strong>') || p.startsWith('<h3>') || p.startsWith('<li>')) return p;
     return '<p>' + p + '</p>';
   }).join('');
   return html;
@@ -1207,7 +1208,7 @@ function loadSessionData(data) {
     const attContainer = document.getElementById('viewer-attitudes');
     if (attContainer && state.selectedAttitudes.length) {
       attContainer.innerHTML = state.selectedAttitudes.map(a =>
-        `<span class="chip" style="flex:none; padding:0.5rem 1rem; cursor:default; background:#ff00ff; color:#fff; border-color:#ff00ff;">${a}</span>`
+        `<span class="chip" style="flex:none; padding:0.5rem 1rem; cursor:default; background:#EBEBFF; color:#000; border-color:#EBEBFF;">${a}</span>`
       ).join('');
     }
     // Update viewer insight fields to match moderator's attitudes
